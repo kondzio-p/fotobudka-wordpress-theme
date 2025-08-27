@@ -25,9 +25,9 @@
         <!-- Na desktop: normalny układ -->
         <div class="logo d-none d-md-block">
             <img
-                src="<?php echo get_template_directory_uri(); ?>/images/og-events-logo-white.png"
+                src="<?php echo get_fotobudka_site_logo(); ?>"
                 alt="OG Events Logo"
-                onerror="this.outerHTML='<div style=\'color: #8b4b7a; font-weight: bold; font-size: 24px;\'>OG<br><span style=\'font-size: 12px; font-weight: normal;\'>EVENT SPOT</span></div>'"
+                onerror="this.outerHTML='<div style=\'color: <?php echo get_fotobudka_secondary_color(); ?>; font-weight: bold; font-size: 24px;\'>OG<br><span style=\'font-size: 12px; font-weight: normal;\'>EVENT SPOT</span></div>'"
             />
         </div>
 
@@ -62,9 +62,9 @@
             <div class="header-top-row">
                 <div class="logo">
                     <img
-                        src="<?php echo get_template_directory_uri(); ?>/images/og-events-logo-white.png"
+                        src="<?php echo get_fotobudka_site_logo(); ?>"
                         alt="OG Events Logo"
-                        onerror="this.outerHTML='<div style=\'color: #8b4b7a; font-weight: bold; font-size: 18px;\'>OG<br><span style=\'font-size: 10px; font-weight: normal;\'>EVENT SPOT</span></div>'"
+                        onerror="this.outerHTML='<div style=\'color: <?php echo get_fotobudka_secondary_color(); ?>; font-weight: bold; font-size: 18px;\'>OG<br><span style=\'font-size: 10px; font-weight: normal;\'>EVENT SPOT</span></div>'"
                     />
                 </div>
 

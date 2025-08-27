@@ -1,58 +1,82 @@
 <?php get_header(); ?>
 
+<!-- Hero Section -->
+<?php 
+$hero_bg = get_fotobudka_hero_background();
+$is_hero_video = (strpos($hero_bg, '.mp4') !== false || strpos($hero_bg, '.webm') !== false || strpos($hero_bg, '.mov') !== false);
+?>
+<section class="hero-section" style="position: relative; min-height: 60vh; display: flex; align-items: center; justify-content: center; overflow: hidden;">
+    <?php if ($is_hero_video): ?>
+        <video 
+            autoplay 
+            muted 
+            loop 
+            playsinline 
+            style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; object-fit: cover; z-index: -1;"
+            onerror="this.style.display='none';"
+        >
+            <source src="<?php echo esc_url($hero_bg); ?>" type="video/mp4">
+        </video>
+    <?php else: ?>
+        <div style="
+            position: absolute; 
+            top: 0; 
+            left: 0; 
+            width: 100%; 
+            height: 100%; 
+            background-image: url('<?php echo esc_url($hero_bg); ?>'); 
+            background-size: cover; 
+            background-position: center; 
+            z-index: -1;
+        "></div>
+    <?php endif; ?>
+    
+    <div style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.4); z-index: 0;"></div>
+    
+    <div class="container text-center" style="position: relative; z-index: 1; color: white;">
+        <h1 style="font-size: 3rem; margin-bottom: 1rem; text-shadow: 2px 2px 4px rgba(0,0,0,0.5);">
+            <?php echo get_fotobudka_hero_title(); ?>
+        </h1>
+        <p style="font-size: 1.3rem; margin-bottom: 2rem; text-shadow: 1px 1px 2px rgba(0,0,0,0.5);">
+            <?php echo get_fotobudka_hero_subtitle(); ?>
+        </p>
+    </div>
+</section>
+
 <main class="main-content">
-    <div class="photo-gallery">
-        <div class="photo-frame">
-            <video
-                src="<?php echo get_template_directory_uri(); ?>/videos/film1.mp4"
-                alt="Event video 1"
+    <div class="photo-gallery"><?php
+    // Generate the 4 frames dynamically
+    for ($i = 1; $i <= 4; $i++) {
+        $frame_media = get_fotobudka_frame_media($i);
+        $frame_caption = get_fotobudka_frame_caption($i);
+        $is_video = (strpos($frame_media, '.mp4') !== false || strpos($frame_media, '.webm') !== false || strpos($frame_media, '.mov') !== false);
+        
+        echo '<div class="photo-frame">';
+        if ($is_video) {
+            echo '<video
+                src="' . esc_url($frame_media) . '"
+                alt="Event video ' . $i . '"
                 autoplay
                 muted
                 loop
                 playsinline
-                data-start-time="7"
-                onerror="this.outerHTML='<img src=\'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjgwIiBoZWlnaHQ9IjMyMCIgdmlld0JveD0iMCAwIDI4MCAzMjAiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+CjxyZWN0IHdpZHRoPSIyODAiIGhlaWdodD0iMzIwIiBmaWxsPSIjRjBGMEYwIi8+Cjx0ZXh0IHg9IjE0MCIgeT0iMTY1IiB0ZXh0LWFuY2hvcj0ibWlkZGxlIiBmaWxsPSIjOTk5IiBmb250LWZhbWlseT0iQXJpYWwiIGZvbnQtc2l6ZT0iMTQiPkV2ZW50IFZpZGVvIDE8L3RleHQ+Cjwvc3ZnPg==\' alt=\'Event Video 1\'/>'"
-            ></video>
-        </div>
-
-        <div class="photo-frame">
-            <video
-                src="<?php echo get_template_directory_uri(); ?>/videos/film2.mp4"
-                alt="Event video 2"
-                autoplay
-                muted
-                loop
-                playsinline
-                data-start-time="3"
-                onerror="this.outerHTML='<img src=\'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjgwIiBoZWlnaHQ9IjMyMCIgdmlld0JveD0iMCAwIDI4MCAzMjAiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+CjxyZWN0IHdpZHRoPSIyODAiIGhlaWdodD0iMzIwIiBmaWxsPSIjRjBGMEYwIi8+Cjx0ZXh0IHg9IjE0MCIgeT0iMTY1IiB0ZXh0LWFuY2hvcj0ibWlkZGxlIiBmaWxsPSIjOTk5IiBmb250LWZhbWlseT0iQXJpYWwiIGZvbnQtc2l6ZT0iMTQiPkV2ZW50IFZpZGVvIDI8L3RleHQ+Cjwvc3ZnPg==\' alt=\'Event Video 2\'/>'"
-            ></video>
-        </div>
-
-        <div class="photo-frame">
-            <video
-                src="<?php echo get_template_directory_uri(); ?>/videos/film1.mp4"
-                alt="Event video 3"
-                autoplay
-                muted
-                loop
-                playsinline
-                data-start-time="2"
-                onerror="this.outerHTML='<img src=\'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjgwIiBoZWlnaHQ9IjMyMCIgdmlld0JveD0iMCAwIDI4MCAzMjAiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+CjxyZWN0IHdpZHRoPSIyODAiIGhlaWdodD0iMzIwIiBmaWxsPSIjRjBGMEYwIi8+Cjx0ZXh0IHg9IjE0MCIgeT0iMTY1IiB0ZXh0LWFuY2hvcj0ibWlkZGxlIiBmaWxsPSIjOTk5IiBmb250LWZhbWlseT0iQXJpYWwiIGZvbnQtc2l6ZT0iMTQiPkV2ZW50IFZpZGVvIDM8L3RleHQ+Cjwvc3ZnPg==\' alt=\'Event Video 3\'/>'"
-            ></video>
-        </div>
-
-        <div class="photo-frame">
-            <video
-                src="<?php echo get_template_directory_uri(); ?>/videos/film2.mp4"
-                alt="Event video 4"
-                autoplay
-                muted
-                loop
-                playsinline
-                data-start-time="4"
-                onerror="this.outerHTML='<img src=\'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjgwIiBoZWlnaHQ9IjMyMCIgdmlld0JveD0iMCAwIDI4MCAzMjAiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+CjxyZWN0IHdpZHRoPSIyODAiIGhlaWdodD0iMzIwIiBmaWxsPSIjRjBGMEYwIi8+Cjx0ZXh0IHg9IjE0MCIgeT0iMTY1IiB0ZXh0LWFuY2hvcj0ibWlkZGxlIiBmaWxsPSIjOTk5IiBmb250LWZhbWlseT0iQXJpYWwiIGZvbnQtc2l6ZT0iMTQiPkV2ZW50IFZpZGVvIDQ8L3RleHQ+Cjwvc3ZnPg==\' alt=\'Event Video 4\'/>'"
-            ></video>
-        </div>
+                data-start-time="' . ($i * 2 + 1) . '"
+                onerror="this.outerHTML=\'<img src=\\\'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjgwIiBoZWlnaHQ9IjMyMCIgdmlld0JveD0iMCAwIDI4MCAzMjAiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+CjxyZWN0IHdpZHRoPSIyODAiIGhlaWdodD0iMzIwIiBmaWxsPSIjRjBGMEYwIi8+Cjx0ZXh0IHg9IjE0MCIgeT0iMTY1IiB0ZXh0LWFuY2hvcj0ibWlkZGxlIiBmaWxsPSIjOTk5IiBmb250LWZhbWlseT0iQXJpYWwiIGZvbnQtc2l6ZT0iMTQiPkV2ZW50IFZpZGVvICcg. $i . \'PC90ZXh0Pgo8L3N2Zz4=\\\' alt=\\\'Event Video ' . $i . '\\\'/>\';"
+            ></video>';
+        } else {
+            echo '<img 
+                src="' . esc_url($frame_media) . '" 
+                alt="Event image ' . $i . '"
+                style="width: 100%; height: 100%; object-fit: cover;"
+                onerror="this.outerHTML=\'<img src=\\\'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjgwIiBoZWlnaHQ9IjMyMCIgdmlld0JveD0iMCAwIDI4MCAzMjAiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+CjxyZWN0IHdpZHRoPSIyODAiIGhlaWdodD0iMzIwIiBmaWxsPSIjRjBGMEYwIi8+Cjx0ZXh0IHg9IjE0MCIgeT0iMTY1IiB0ZXh0LWFuY2hvcj0ibWlkZGxlIiBmaWxsPSIjOTk5IiBmb250LWZhbWlseT0iQXJpYWwiIGZvbnQtc2l6ZT0iMTQiPkV2ZW50IEltYWdlICcg. $i . \'PC90ZXh0Pgo8L3N2Zz4=\\\' alt=\\\'Event Image ' . $i . '\\\'/>\';"
+            />';
+        }
+        if ($frame_caption) {
+            echo '<div class="frame-caption" style="position: absolute; bottom: 10px; left: 10px; right: 10px; background: rgba(0,0,0,0.7); color: white; padding: 8px; border-radius: 4px; font-size: 0.9rem;">' . esc_html($frame_caption) . '</div>';
+        }
+        echo '</div>';
+    }
+    ?>
     </div>
 </main>
 
@@ -198,7 +222,7 @@
                 <div
                     class="stat-card text-center p-4"
                     style="
-                        background: #801039;
+                        background: <?php echo get_fotobudka_primary_color(); ?>;
                         color: white;
                         border-radius: 15px;
                         box-shadow: 0 8px 25px rgba(139, 75, 122, 0.3);
@@ -213,13 +237,13 @@
                             margin-bottom: 10px;
                         "
                     >
-                        0+
+                        <?php echo get_fotobudka_stat(1, 'number'); ?>
                     </div>
                     <div
                         class="stat-label"
                         style="font-size: 16px; font-weight: 500"
                     >
-                        zadowolonych klientów
+                        <?php echo get_fotobudka_stat(1, 'label'); ?>
                     </div>
                 </div>
             </div>
@@ -228,7 +252,7 @@
                 <div
                     class="stat-card text-center p-4"
                     style="
-                        background: #801039;
+                        background: <?php echo get_fotobudka_primary_color(); ?>;
                         color: white;
                         border-radius: 15px;
                         box-shadow: 0 8px 25px rgba(139, 75, 122, 0.3);
@@ -243,13 +267,13 @@
                             margin-bottom: 10px;
                         "
                     >
-                        0 lat
+                        <?php echo get_fotobudka_stat(2, 'number'); ?>
                     </div>
                     <div
                         class="stat-label"
                         style="font-size: 16px; font-weight: 500"
                     >
-                        na rynku
+                        <?php echo get_fotobudka_stat(2, 'label'); ?>
                     </div>
                 </div>
             </div>
@@ -258,7 +282,7 @@
                 <div
                     class="stat-card text-center p-4"
                     style="
-                        background: #801039;
+                        background: <?php echo get_fotobudka_primary_color(); ?>;
                         color: white;
                         border-radius: 15px;
                         box-shadow: 0 8px 25px rgba(139, 75, 122, 0.3);
@@ -273,13 +297,13 @@
                             margin-bottom: 10px;
                         "
                     >
-                        ∞
+                        <?php echo get_fotobudka_stat(3, 'number'); ?>
                     </div>
                     <div
                         class="stat-label"
                         style="font-size: 16px; font-weight: 500"
                     >
-                        uśmiechów
+                        <?php echo get_fotobudka_stat(3, 'label'); ?>
                     </div>
                 </div>
             </div>
@@ -322,17 +346,23 @@
             </button>
 
             <div class="image-carousel">
-                <div class="image-slide image-slide-left">
-                    <img src="<?php echo get_template_directory_uri(); ?>/images/360.png" alt="Fotobudka 360" />
-                </div>
-
-                <div class="image-slide image-slide-center active">
-                    <img src="<?php echo get_template_directory_uri(); ?>/images/mirror.jpg" alt="Fotolustro" />
-                </div>
-
-                <div class="image-slide image-slide-right">
-                    <img src="<?php echo get_template_directory_uri(); ?>/images/heavysmoke.jpg" alt="Ciężki dym" />
-                </div>
+                <?php 
+                $carousel_images = get_fotobudka_carousel_images();
+                $total_images = count($carousel_images);
+                
+                foreach ($carousel_images as $index => $image_url) {
+                    $position_class = '';
+                    if ($index == 0) $position_class = 'image-slide-left';
+                    else if ($index == 1) $position_class = 'image-slide-center active';
+                    else if ($index == 2) $position_class = 'image-slide-right';
+                    else $position_class = 'image-slide-hidden'; // For images beyond the first 3
+                    
+                    echo '<div class="image-slide ' . $position_class . '" data-index="' . $index . '">';
+                    echo '<img src="' . esc_url($image_url) . '" alt="Galeria zdjęcie ' . ($index + 1) . '" 
+                        onerror="this.outerHTML=\'<img src=\\\'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNDAwIiBoZWlnaHQ9IjMwMCIgdmlld0JveD0iMCAwIDQwMCAzMDAiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+CjxyZWN0IHdpZHRoPSI0MDAiIGhlaWdodD0iMzAwIiBmaWxsPSIjRjBGMEYwIi8+Cjx0ZXh0IHg9IjIwMCIgeT0iMTUwIiB0ZXh0LWFuY2hvcj0ibWlkZGxlIiBmaWxsPSIjOTk5IiBmb250LWZhbWlseT0iQXJpYWwiIGZvbnQtc2l6ZT0iMTYiPkdhbGVyaWEgWmRqxJljaWU8L3RleHQ+Cjwvc3ZnPg==\\\' alt=\\\'Galeria zdjęcie ' . ($index + 1) . '\\\'/>\';" />';
+                    echo '</div>';
+                }
+                ?>
             </div>
 
             <button

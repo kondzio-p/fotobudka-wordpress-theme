@@ -1,123 +1,160 @@
-// Galeria zdjęć - carousel functionality
-const images = [
-	{ src: "360.png", alt: "Fotobudka 360" },
-	{ src: "mirror.jpg", alt: "Fotolustro" },
-	{ src: "heavysmoke.jpg", alt: "Ciężki dym" },
-	{ src: "fountain.jpg", alt: "Fontanny iskier" },
-	{ src: "neons.jpg", alt: "Neonowe napisy" },
-];
-
-let currentIndex = 1; // Zaczynamy od drugiego zdjęcia (mirror.jpg), zgodnie z HTML
+// Galeria zdjęć - carousel functionality - UPDATED FOR DYNAMIC IMAGES
+let carouselImages = [];
+let currentIndex = 1; // Zaczynamy od drugiego zdjęcia
 let isAnimating = false; // Flaga zapobiegająca nakładaniu się animacji
 
+// Initialize carousel with dynamic images from PHP
+function initializeCarousel() {
+    const imageSlides = document.querySelectorAll('.image-slide');
+    carouselImages = [];
+    
+    imageSlides.forEach((slide, index) => {
+        const img = slide.querySelector('img');
+        if (img) {
+            carouselImages.push({
+                src: img.src,
+                alt: img.alt || `Galeria zdjęcie ${index + 1}`
+            });
+        }
+    });
+    
+    // Set initial currentIndex to show the active image
+    const activeSlide = document.querySelector('.image-slide.active');
+    if (activeSlide) {
+        currentIndex = parseInt(activeSlide.dataset.index) || 1;
+    }
+    
+    // If we have less than 3 images, hide arrows
+    if (carouselImages.length <= 3) {
+        const arrows = document.querySelectorAll('.carousel-arrow');
+        arrows.forEach(arrow => arrow.style.display = 'none');
+    }
+}
+
 function updateCarousel() {
-	if (isAnimating) return; // Zapobiegaj nakładaniu się animacji
+    if (isAnimating || carouselImages.length === 0) return; // Zapobiegaj nakładaniu się animacji
 
-	isAnimating = true;
-	//console.log("Current index:", currentIndex);
+    isAnimating = true;
 
-	const leftSlide = document.querySelector(".image-slide-left img");
-	const centerSlide = document.querySelector(".image-slide-center img");
-	const rightSlide = document.querySelector(".image-slide-right img");
+    const leftSlide = document.querySelector(".image-slide-left");
+    const centerSlide = document.querySelector(".image-slide-center");
+    const rightSlide = document.querySelector(".image-slide-right");
+    
+    if (!leftSlide || !centerSlide || !rightSlide) {
+        isAnimating = false;
+        return;
+    }
 
-	const leftIndex = (currentIndex - 1 + images.length) % images.length;
-	const rightIndex = (currentIndex + 1) % images.length;
+    const leftImg = leftSlide.querySelector('img');
+    const centerImg = centerSlide.querySelector('img');
+    const rightImg = rightSlide.querySelector('img');
 
-	//console.log("Indices:", leftIndex, currentIndex, rightIndex);
+    const leftIndex = (currentIndex - 1 + carouselImages.length) % carouselImages.length;
+    const rightIndex = (currentIndex + 1) % carouselImages.length;
 
-	// Animacja fadeOut dla wszystkich slajdów
-	const tl = gsap.timeline({
-		onComplete: () => {
-			isAnimating = false;
-		},
-	});
+    // Animacja fadeOut dla wszystkich slajdów
+    const tl = gsap.timeline({
+        onComplete: () => {
+            isAnimating = false;
+        },
+    });
 
-	// Fade out wszystkich obrazów
-	tl.to([leftSlide, centerSlide, rightSlide], {
-		opacity: 0,
-		scale: 0.9,
-		duration: 0.3,
-		ease: "power2.inOut",
-	})
-		// Zmiana źródeł obrazów
-		.call(() => {
-			leftSlide.src = images[leftIndex].src;
-			leftSlide.alt = images[leftIndex].alt;
+    // Fade out wszystkich obrazów
+    tl.to([leftImg, centerImg, rightImg], {
+        opacity: 0,
+        scale: 0.9,
+        duration: 0.3,
+        ease: "power2.inOut",
+    })
+        // Zmiana źródeł obrazów
+        .call(() => {
+            if (leftImg && carouselImages[leftIndex]) {
+                leftImg.src = carouselImages[leftIndex].src;
+                leftImg.alt = carouselImages[leftIndex].alt;
+            }
 
-			centerSlide.src = images[currentIndex].src;
-			centerSlide.alt = images[currentIndex].alt;
+            if (centerImg && carouselImages[currentIndex]) {
+                centerImg.src = carouselImages[currentIndex].src;
+                centerImg.alt = carouselImages[currentIndex].alt;
+            }
 
-			rightSlide.src = images[rightIndex].src;
-			rightSlide.alt = images[rightIndex].alt;
-		})
-		// Fade in z animacją
-		.to(
-			[leftSlide, rightSlide],
-			{
-				opacity: 0.6,
-				scale: 1,
-				duration: 0.4,
-				ease: "power2.out",
-			},
-			"+=0.1"
-		)
-		.to(
-			centerSlide,
-			{
-				opacity: 1,
-				scale: 1,
-				duration: 0.4,
-				ease: "power2.out",
-			},
-			"-=0.3"
-		)
-		// Dodaj subtelny efekt pulsowania dla środkowego obrazu
-		.to(
-			centerSlide,
-			{
-				scale: 1.02,
-				duration: 0.2,
-				ease: "power2.inOut",
-				yoyo: true,
-				repeat: 1,
-			},
-			"-=0.2"
-		);
+            if (rightImg && carouselImages[rightIndex]) {
+                rightImg.src = carouselImages[rightIndex].src;
+                rightImg.alt = carouselImages[rightIndex].alt;
+            }
+        })
+        // Fade in z animacją
+        .to(
+            [leftImg, rightImg],
+            {
+                opacity: 0.6,
+                scale: 1,
+                duration: 0.4,
+                ease: "power2.out",
+            },
+            "+=0.1"
+        )
+        .to(
+            centerImg,
+            {
+                opacity: 1,
+                scale: 1,
+                duration: 0.4,
+                ease: "power2.out",
+            },
+            "-=0.3"
+        )
+        // Dodaj subtelny efekt pulsowania dla środkowego obrazu
+        .to(
+            centerImg,
+            {
+                scale: 1.02,
+                duration: 0.2,
+                ease: "power2.inOut",
+                yoyo: true,
+                repeat: 1,
+            },
+            "-=0.2"
+        );
 }
 
 // Make these functions global so they can be called from HTML onclick attributes
 window.nextImage = function () {
-	if (isAnimating) return; // Zapobiegaj szybkiemu klikaniu
+	if (isAnimating || carouselImages.length === 0) return; // Zapobiegaj szybkiemu klikaniu
 
-	currentIndex = (currentIndex + 1) % images.length;
+	currentIndex = (currentIndex + 1) % carouselImages.length;
 
 	// Dodaj animację przycisku
 	const rightButton = document.querySelector(".carousel-arrow-right");
-	gsap.to(rightButton, {
-		scale: 0.9,
-		duration: 0.1,
-		ease: "power2.inOut",
-		yoyo: true,
-		repeat: 1,
-	});
+	if (rightButton) {
+		gsap.to(rightButton, {
+			scale: 0.9,
+			duration: 0.1,
+			ease: "power2.inOut",
+			yoyo: true,
+			repeat: 1,
+		});
+	}
 
 	updateCarousel();
 };
 
 window.prevImage = function () {
-	if (isAnimating) return; // Zapobiegaj szybkiemu klikaniu
+	if (isAnimating || carouselImages.length === 0) return; // Zapobiegaj szybkiemu klikaniu
 
-	currentIndex = (currentIndex - 1 + images.length) % images.length;
+	currentIndex = (currentIndex - 1 + carouselImages.length) % carouselImages.length;
 
 	// Dodaj animację przycisku
 	const leftButton = document.querySelector(".carousel-arrow-left");
-	gsap.to(leftButton, {
-		scale: 0.9,
-		duration: 0.1,
-		ease: "power2.inOut",
-		yoyo: true,
-		repeat: 1,
-	});
+	if (leftButton) {
+		gsap.to(leftButton, {
+			scale: 0.9,
+			duration: 0.1,
+			ease: "power2.inOut",
+			yoyo: true,
+			repeat: 1,
+		});
+	}
 
 	updateCarousel();
 };
@@ -560,7 +597,8 @@ document.addEventListener("DOMContentLoaded", function () {
 		});
 	});
 
-	// Initialize carousel
+	// Initialize carousel with dynamic images
+	initializeCarousel();
 	updateCarousel();
 
 	// Mouse parallax effect for main gallery - tylko na desktop
