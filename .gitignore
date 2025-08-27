@@ -1,0 +1,44 @@
+# Blokuj pliki systemowe
+/snap/
+/fonts/
+/tmp/
+/var/
+/usr/
+/home/
+/root/
+/etc/
+
+# Blokuj pliki WordPress które nie są motywem
+wp-admin/
+wp-includes/
+wp-content/plugins/
+wp-content/uploads/
+wp-content/themes/twenty*/
+wp-config.php
+.htaccess
+
+# Blokuj pliki systemowe
+*.so
+*.cache
+*.lock
+*.log
+.DS_Store
+Thumbs.db
+
+# DODAJ TYLKO PLIKI MOTYWU
+!style.css
+!functions.php
+!index.php
+!header.php
+!footer.php
+!single.php
+!page.php
+!archive.php
+!*.php
+!*.css
+!*.js
+!*.png
+!*.jpg
+!*.jpeg
+!*.gif
+!*.svg
