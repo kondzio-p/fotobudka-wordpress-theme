@@ -1,16 +1,18 @@
 <?php get_header(); ?>
 
+<!-- Główna część strony -->
 <main class="main-content">
     <div class="photo-gallery">
         <?php
-        // Get video frame data for dynamic display
+        // Pętla: generuje do 4 ramek wideo na górze strony (hero)
         for ($frame = 1; $frame <= 4; $frame++) {
+            // Dane ramki wideo z ACF / funkcji pomocniczej
             $frame_data = get_fotobudka_video_frame($frame);
             
             echo '<div class="photo-frame">';
             
             if ($frame_data['has_custom_video']) {
-                // Use custom video
+                // Wideo niestandardowe ustawione w ACF (z obsługą fallbacku)
                 echo '<video
                     src="' . esc_url($frame_data['video_url']) . '"
                     alt="Event video ' . $frame . '"
@@ -20,6 +22,7 @@
                     playsinline
                     data-start-time="' . esc_attr($frame_data['start_time']) . '"';
                     
+                // Fallback obrazu jeśli odtwarzanie wideo się nie powiedzie
                 if ($frame_data['fallback_image']) {
                     $fallback_b64 = base64_encode('<svg width="280" height="320" viewBox="0 0 280 320" fill="none" xmlns="http://www.w3.org/2000/svg"><rect width="280" height="320" fill="#F0F0F0"/><text x="140" y="165" text-anchor="middle" fill="#999" font-family="Arial" font-size="14">Event Video ' . $frame . '</text></svg>');
                     echo ' onerror="this.outerHTML=\'<img src=\\\'' . esc_url($frame_data['fallback_image']) . '\\\' alt=\\\'Event Video ' . $frame . '\\\' style=\\\'width: 100%; height: 100%; object-fit: cover;\\\' onerror=\\\'this.src=\\\"data:image/svg+xml;base64,' . $fallback_b64 . '\\\";\\\'/>\';"';
@@ -30,7 +33,7 @@
                 
                 echo '></video>';
             } else {
-                // Use default video as fallback
+                // Wideo domyślne (gdy brak niestandardowego z ACF)
                 $default_videos = [1 => 'film1.mp4', 2 => 'film2.mp4', 3 => 'film1.mp4', 4 => 'film2.mp4'];
                 $default_video = $default_videos[$frame];
                 $fallback_b64 = base64_encode('<svg width="280" height="320" viewBox="0 0 280 320" fill="none" xmlns="http://www.w3.org/2000/svg"><rect width="280" height="320" fill="#F0F0F0"/><text x="140" y="165" text-anchor="middle" fill="#999" font-family="Arial" font-size="14">Event Video ' . $frame . '</text></svg>');
@@ -53,13 +56,10 @@
     </div>
 </main>
 
-<!-- Welcome Section -->
+<!-- Sekcja powitalna (hero copy + CTA) -->
 <section id="welcome" class="welcome-section">
     <div class="container-fluid px-0">
-        <div
-            class="welcome-header text-center py-5"
-            style="background: rgba(255, 255, 255, 0.9)"
-        >
+        <div class="welcome-header text-center py-5" style="background: rgba(255, 255, 255, 0.9)">
             <h2 class="mb-3">
                 <?php echo get_acf_value('tytul_glowny', 'Witamy w <span style="color: #801039; font-weight: bold">Fotobudka Chojnice!</span>'); ?>
             </h2>
@@ -68,23 +68,15 @@
             </p>
         </div>
 
-        <div
-            class="offers-section py-5"
-            style="
-                background: linear-gradient(
-                    135deg,
-                    #f8f9fa 0%,
-                    #e9ecef 100%
-                );
-            "
-        >
+        <!-- Sekcja oferty: karty usług -->
+        <div class="offers-section py-5" style="background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);">
             <div class="container">
                 <h3 class="text-center mb-5" style="color: #2c2c2c">
                     <?php echo get_acf_value('tytul_oferta', 'Nasza <span style="color: #801039">oferta</span>'); ?>
                 </h3>
 
                 <div class="row g-4">
-                    <!-- Fotobudka 360 -->
+                    <!-- Karta: Fotobudka 360 -->
                     <div class="col-lg-4 col-md-6">
                         <div class="offer-card offer-card-360 h-100">
                             <div class="card-background"></div>
@@ -101,7 +93,7 @@
                         </div>
                     </div>
 
-                    <!-- Fotolustro -->
+                    <!-- Karta: Fotolustro -->
                     <div class="col-lg-4 col-md-6">
                         <div class="offer-card offer-card-mirror h-100">
                             <div class="card-background"></div>
@@ -118,7 +110,7 @@
                         </div>
                     </div>
 
-                    <!-- Ciężki dym -->
+                    <!-- Karta: Ciężki dym -->
                     <div class="col-lg-4 col-md-6">
                         <div class="offer-card offer-card-smoke h-100">
                             <div class="card-background"></div>
@@ -135,7 +127,7 @@
                         </div>
                     </div>
 
-                    <!-- Fontanny iskier -->
+                    <!-- Karta: Fontanny iskier -->
                     <div class="col-lg-4 col-md-6 offset-lg-2">
                         <div class="offer-card offer-card-fountain h-100">
                             <div class="card-background"></div>
@@ -152,7 +144,7 @@
                         </div>
                     </div>
 
-                    <!-- Neonowe napisy -->
+                    <!-- Karta: Neonowe napisy -->
                     <div class="col-lg-4 col-md-6">
                         <div class="offer-card offer-card-neons h-100">
                             <div class="card-background"></div>
@@ -168,13 +160,13 @@
                             </div>
                         </div>
                     </div>
-                </div>
-            </div>
-        </div>
-    </div>
+                </div> <!-- /row -->
+            </div> <!-- /container -->
+        </div> <!-- /offers-section -->
+    </div> <!-- /container-fluid -->
 </section>
 
-<!-- My w liczbach Section -->
+<!-- Sekcja: "My w liczbach" (statystyki) -->
 <section
     class="stats-section py-5"
     style="
@@ -190,6 +182,7 @@
             </h3>
         </div>
 
+        <!-- Trzy karty statystyk (liczba + opis z ACF) -->
         <div class="row justify-content-center g-4">
             <div class="col-lg-3 col-md-4 col-sm-6">
                 <div
@@ -284,7 +277,7 @@
     </div>
 </section>
 
-<!-- Galeria zdjęć Section -->
+<!-- Sekcja galerii zdjęć (karuzela 3 obrazów) -->
 <section
     class="image-gallery-section py-5"
     style="background: rgba(139, 75, 122, 0.1)"
@@ -297,6 +290,7 @@
         </div>
 
         <div class="image-carousel-container">
+            <!-- Strzałka: poprzedni slajd -->
             <button
                 class="carousel-arrow carousel-arrow-left"
                 onclick="prevImage()"
@@ -318,8 +312,10 @@
                 </svg>
             </button>
 
+            <!-- Lista slajdów w karuzeli -->
             <div class="image-carousel">
                 <?php
+                // Pobranie zdjęć z ACF; jeśli brak – użycie domyślnych
                 $gallery_images = get_fotobudka_gallery_images();
                 $default_images = [
                     get_template_directory_uri() . '/images/360.png',
@@ -329,10 +325,10 @@
                     get_template_directory_uri() . '/images/neons.jpg'
                 ];
                 
-                // Use custom gallery images if available, otherwise use defaults
+                // Decyzja: niestandardowe zdjęcia czy zestaw domyślny
                 $images_to_display = !empty($gallery_images) ? $gallery_images : $default_images;
                 
-                // Display first three images (or what's available)
+                // Render: pierwsze trzy obrazy na pozycjach left/center/right
                 $positions = ['left', 'center', 'right'];
                 for ($i = 0; $i < 3 && $i < count($images_to_display); $i++) {
                     $position = $positions[$i];
@@ -344,7 +340,7 @@
                     echo '</div>';
                 }
                 
-                // If we have fewer than 3 images, fill with defaults
+                // Uzupełnienie braków: jeśli zdjęć < 3, dopełnij domyślnymi
                 if (count($images_to_display) < 3) {
                     for ($i = count($images_to_display); $i < 3; $i++) {
                         $position = $positions[$i];
@@ -359,6 +355,7 @@
                 ?>
             </div>
 
+            <!-- Strzałka: następny slajd -->
             <button
                 class="carousel-arrow carousel-arrow-right"
                 onclick="nextImage()"

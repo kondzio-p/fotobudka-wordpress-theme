@@ -8,7 +8,7 @@
     
     <?php wp_head(); ?>
     
-    <!--Preload-->
+    <!-- Preload ważnych obrazów -->
     <link rel="preload" href="<?php echo get_template_directory_uri(); ?>/images/360.png" as="image">
     <link rel="preload" href="<?php echo get_template_directory_uri(); ?>/images/mirror.jpg" as="image">
     <link rel="preload" href="<?php echo get_template_directory_uri(); ?>/images/heavysmoke.jpg" as="image">
@@ -17,12 +17,14 @@
 </head>
 <body <?php body_class(); ?>>
 
-<!-- Dodaj ten div jako pierwsze dziecko body -->
+<!-- Tło globalne -->
 <div id="background-fixed"></div>
 
+<!-- Główny nagłówek strony -->
 <header class="header">
     <div class="nav-container">
-        <!-- Na desktop: normalny układ -->
+        
+        <!-- Logo i menu na desktopie -->
         <div class="logo d-none d-md-block">
             <img
                 src="<?php echo get_template_directory_uri(); ?>/images/og-events-logo-white.png"
@@ -41,6 +43,7 @@
             </ul>
         </nav>
 
+        <!-- Ikony social media na desktopie -->
         <div class="social-icons d-none d-md-flex">
             <a
                 href="<?php echo get_acf_value('facebook_url', 'https://www.facebook.com/profile.php?id=61553668165091'); ?>"
@@ -56,9 +59,10 @@
             ><img src="<?php echo get_template_directory_uri(); ?>/images/insta.svg" width="25px" alt="" /></a>
         </div>
 
-        <!-- Na mobile: kompaktowy układ -->
+        <!-- Układ mobilny -->
         <div class="d-md-none w-100">
-            <!-- Logo i ikony w jednej linii -->
+            
+            <!-- Górny pasek: logo + social media -->
             <div class="header-top-row">
                 <div class="logo">
                     <img
@@ -84,7 +88,7 @@
                 </div>
             </div>
 
-            <!-- Menu pod spodem -->
+            <!-- Menu mobilne -->
             <nav>
                 <ul class="nav-menu">
                     <li>
