@@ -440,6 +440,27 @@ document.addEventListener("DOMContentLoaded", function () {
 	gsap.set(".stat-card", { opacity: 0, y: -30 });
 	gsap.set(".welcome-header h2", { opacity: 0, y: 50 });
 	gsap.set(".welcome-header p", { opacity: 0, y: 30 });
+	
+	// Set initial stat numbers to "0" to prevent jump effect during animation
+	document.querySelectorAll(".stat-number").forEach((element) => {
+		const finalText = element.textContent;
+		// Store the original final value in a data attribute
+		element.setAttribute("data-final-value", finalText);
+		
+		// Set initial display value to 0 only for numeric values
+		if (finalText.includes("+")) {
+			element.textContent = "0+";
+		} else if (finalText.includes("lat")) {
+			element.textContent = "0 lat";
+		} else {
+			// For non-numeric values (like ∞), don't change them
+			const hasNumbers = /\d/.test(finalText);
+			if (hasNumbers) {
+				element.textContent = "0";
+			}
+			// If no numbers found, leave the original value (like ∞)
+		}
+	});
 
 	// Usuń lub zakomentuj animację parallax dla tła
 	/*
@@ -624,7 +645,7 @@ document.addEventListener("DOMContentLoaded", function () {
 			// Animate numbers counting up
 			statCards.forEach((card) => {
 				const numberElement = card.querySelector(".stat-number");
-				const finalText = numberElement.textContent;
+				const finalText = numberElement.getAttribute("data-final-value") || numberElement.textContent;
 
 				if (finalText.includes("+")) {
 					const number = parseInt(finalText.replace("+", ""));
@@ -655,6 +676,12 @@ document.addEventListener("DOMContentLoaded", function () {
 							},
 						}
 					);
+				} else {
+					// For non-numeric values (like ∞), restore the original value
+					const hasNumbers = /\d/.test(finalText);
+					if (!hasNumbers) {
+						numberElement.textContent = finalText;
+					}
 				}
 			});
 		},
