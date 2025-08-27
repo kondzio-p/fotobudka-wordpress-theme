@@ -2,57 +2,54 @@
 
 <main class="main-content">
     <div class="photo-gallery">
-        <div class="photo-frame">
-            <video
-                src="<?php echo get_template_directory_uri(); ?>/videos/film1.mp4"
-                alt="Event video 1"
-                autoplay
-                muted
-                loop
-                playsinline
-                data-start-time="7"
-                onerror="this.outerHTML='<img src=\'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjgwIiBoZWlnaHQ9IjMyMCIgdmlld0JveD0iMCAwIDI4MCAzMjAiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+CjxyZWN0IHdpZHRoPSIyODAiIGhlaWdodD0iMzIwIiBmaWxsPSIjRjBGMEYwIi8+Cjx0ZXh0IHg9IjE0MCIgeT0iMTY1IiB0ZXh0LWFuY2hvcj0ibWlkZGxlIiBmaWxsPSIjOTk5IiBmb250LWZhbWlseT0iQXJpYWwiIGZvbnQtc2l6ZT0iMTQiPkV2ZW50IFZpZGVvIDE8L3RleHQ+Cjwvc3ZnPg==\' alt=\'Event Video 1\'/>'"
-            ></video>
-        </div>
-
-        <div class="photo-frame">
-            <video
-                src="<?php echo get_template_directory_uri(); ?>/videos/film2.mp4"
-                alt="Event video 2"
-                autoplay
-                muted
-                loop
-                playsinline
-                data-start-time="3"
-                onerror="this.outerHTML='<img src=\'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjgwIiBoZWlnaHQ9IjMyMCIgdmlld0JveD0iMCAwIDI4MCAzMjAiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+CjxyZWN0IHdpZHRoPSIyODAiIGhlaWdodD0iMzIwIiBmaWxsPSIjRjBGMEYwIi8+Cjx0ZXh0IHg9IjE0MCIgeT0iMTY1IiB0ZXh0LWFuY2hvcj0ibWlkZGxlIiBmaWxsPSIjOTk5IiBmb250LWZhbWlseT0iQXJpYWwiIGZvbnQtc2l6ZT0iMTQiPkV2ZW50IFZpZGVvIDI8L3RleHQ+Cjwvc3ZnPg==\' alt=\'Event Video 2\'/>'"
-            ></video>
-        </div>
-
-        <div class="photo-frame">
-            <video
-                src="<?php echo get_template_directory_uri(); ?>/videos/film1.mp4"
-                alt="Event video 3"
-                autoplay
-                muted
-                loop
-                playsinline
-                data-start-time="2"
-                onerror="this.outerHTML='<img src=\'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjgwIiBoZWlnaHQ9IjMyMCIgdmlld0JveD0iMCAwIDI4MCAzMjAiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+CjxyZWN0IHdpZHRoPSIyODAiIGhlaWdodD0iMzIwIiBmaWxsPSIjRjBGMEYwIi8+Cjx0ZXh0IHg9IjE0MCIgeT0iMTY1IiB0ZXh0LWFuY2hvcj0ibWlkZGxlIiBmaWxsPSIjOTk5IiBmb250LWZhbWlseT0iQXJpYWwiIGZvbnQtc2l6ZT0iMTQiPkV2ZW50IFZpZGVvIDM8L3RleHQ+Cjwvc3ZnPg==\' alt=\'Event Video 3\'/>'"
-            ></video>
-        </div>
-
-        <div class="photo-frame">
-            <video
-                src="<?php echo get_template_directory_uri(); ?>/videos/film2.mp4"
-                alt="Event video 4"
-                autoplay
-                muted
-                loop
-                playsinline
-                data-start-time="4"
-                onerror="this.outerHTML='<img src=\'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjgwIiBoZWlnaHQ9IjMyMCIgdmlld0JveD0iMCAwIDI4MCAzMjAiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+CjxyZWN0IHdpZHRoPSIyODAiIGhlaWdodD0iMzIwIiBmaWxsPSIjRjBGMEYwIi8+Cjx0ZXh0IHg9IjE0MCIgeT0iMTY1IiB0ZXh0LWFuY2hvcj0ibWlkZGxlIiBmaWxsPSIjOTk5IiBmb250LWZhbWlseT0iQXJpYWwiIGZvbnQtc2l6ZT0iMTQiPkV2ZW50IFZpZGVvIDQ8L3RleHQ+Cjwvc3ZnPg==\' alt=\'Event Video 4\'/>'"
-            ></video>
-        </div>
+        <?php
+        // Get video frame data for dynamic display
+        for ($frame = 1; $frame <= 4; $frame++) {
+            $frame_data = get_fotobudka_video_frame($frame);
+            
+            echo '<div class="photo-frame">';
+            
+            if ($frame_data['has_custom_video']) {
+                // Use custom video
+                echo '<video
+                    src="' . esc_url($frame_data['video_url']) . '"
+                    alt="Event video ' . $frame . '"
+                    autoplay
+                    muted
+                    loop
+                    playsinline
+                    data-start-time="' . esc_attr($frame_data['start_time']) . '"';
+                    
+                if ($frame_data['fallback_image']) {
+                    $fallback_b64 = base64_encode('<svg width="280" height="320" viewBox="0 0 280 320" fill="none" xmlns="http://www.w3.org/2000/svg"><rect width="280" height="320" fill="#F0F0F0"/><text x="140" y="165" text-anchor="middle" fill="#999" font-family="Arial" font-size="14">Event Video ' . $frame . '</text></svg>');
+                    echo ' onerror="this.outerHTML=\'<img src=\\\'' . esc_url($frame_data['fallback_image']) . '\\\' alt=\\\'Event Video ' . $frame . '\\\' style=\\\'width: 100%; height: 100%; object-fit: cover;\\\' onerror=\\\'this.src=\\\"data:image/svg+xml;base64,' . $fallback_b64 . '\\\";\\\'/>\';"';
+                } else {
+                    $fallback_b64 = base64_encode('<svg width="280" height="320" viewBox="0 0 280 320" fill="none" xmlns="http://www.w3.org/2000/svg"><rect width="280" height="320" fill="#F0F0F0"/><text x="140" y="165" text-anchor="middle" fill="#999" font-family="Arial" font-size="14">Event Video ' . $frame . '</text></svg>');
+                    echo ' onerror="this.outerHTML=\'<img src=\\\'data:image/svg+xml;base64,' . $fallback_b64 . '\\\' alt=\\\'Event Video ' . $frame . '\\\'/>\';"';
+                }
+                
+                echo '></video>';
+            } else {
+                // Use default video as fallback
+                $default_videos = [1 => 'film1.mp4', 2 => 'film2.mp4', 3 => 'film1.mp4', 4 => 'film2.mp4'];
+                $default_video = $default_videos[$frame];
+                $fallback_b64 = base64_encode('<svg width="280" height="320" viewBox="0 0 280 320" fill="none" xmlns="http://www.w3.org/2000/svg"><rect width="280" height="320" fill="#F0F0F0"/><text x="140" y="165" text-anchor="middle" fill="#999" font-family="Arial" font-size="14">Event Video ' . $frame . '</text></svg>');
+                
+                echo '<video
+                    src="' . get_template_directory_uri() . '/videos/' . $default_video . '"
+                    alt="Event video ' . $frame . '"
+                    autoplay
+                    muted
+                    loop
+                    playsinline
+                    data-start-time="' . esc_attr($frame_data['start_time']) . '"
+                    onerror="this.outerHTML=\'<img src=\\\'data:image/svg+xml;base64,' . $fallback_b64 . '\\\' alt=\\\'Event Video ' . $frame . '\\\'/>\';"
+                ></video>';
+            }
+            
+            echo '</div>';
+        }
+        ?>
     </div>
 </main>
 
@@ -322,17 +319,44 @@
             </button>
 
             <div class="image-carousel">
-                <div class="image-slide image-slide-left">
-                    <img src="<?php echo get_template_directory_uri(); ?>/images/360.png" alt="Fotobudka 360" />
-                </div>
-
-                <div class="image-slide image-slide-center active">
-                    <img src="<?php echo get_template_directory_uri(); ?>/images/mirror.jpg" alt="Fotolustro" />
-                </div>
-
-                <div class="image-slide image-slide-right">
-                    <img src="<?php echo get_template_directory_uri(); ?>/images/heavysmoke.jpg" alt="Ciężki dym" />
-                </div>
+                <?php
+                $gallery_images = get_fotobudka_gallery_images();
+                $default_images = [
+                    get_template_directory_uri() . '/images/360.png',
+                    get_template_directory_uri() . '/images/mirror.jpg',
+                    get_template_directory_uri() . '/images/heavysmoke.jpg',
+                    get_template_directory_uri() . '/images/fountain.jpg',
+                    get_template_directory_uri() . '/images/neons.jpg'
+                ];
+                
+                // Use custom gallery images if available, otherwise use defaults
+                $images_to_display = !empty($gallery_images) ? $gallery_images : $default_images;
+                
+                // Display first three images (or what's available)
+                $positions = ['left', 'center', 'right'];
+                for ($i = 0; $i < 3 && $i < count($images_to_display); $i++) {
+                    $position = $positions[$i];
+                    $active_class = $position === 'center' ? ' active' : '';
+                    $image_url = $images_to_display[$i];
+                    
+                    echo '<div class="image-slide image-slide-' . $position . $active_class . '">';
+                    echo '<img src="' . esc_url($image_url) . '" alt="Gallery image" loading="lazy" />';
+                    echo '</div>';
+                }
+                
+                // If we have fewer than 3 images, fill with defaults
+                if (count($images_to_display) < 3) {
+                    for ($i = count($images_to_display); $i < 3; $i++) {
+                        $position = $positions[$i];
+                        $active_class = $position === 'center' ? ' active' : '';
+                        $default_img = $default_images[$i % count($default_images)];
+                        
+                        echo '<div class="image-slide image-slide-' . $position . $active_class . '">';
+                        echo '<img src="' . esc_url($default_img) . '" alt="Default gallery image" loading="lazy" style="opacity: 0.7;" />';
+                        echo '</div>';
+                    }
+                }
+                ?>
             </div>
 
             <button
