@@ -98,7 +98,11 @@ get_header();
         >
             <div class="container">
                 <h3 class="text-center mb-5" style="color: #2c2c2c">
-                    Nasza <span style="color: #801039">oferta</span> w <?php echo get_acf_value('nazwa_miasta', get_the_title()); ?>
+                    <?php 
+                    $tytul_oferta = get_acf_value('tytul_oferta', 'Nasza <span style="color: #801039">oferta</span>');
+                    $nazwa_miasta = get_acf_value('nazwa_miasta', get_the_title());
+                    echo str_replace('</span>', '</span> w ' . $nazwa_miasta, $tytul_oferta);
+                    ?>
                 </h3>
 
                 <div class="row g-4">
@@ -108,13 +112,13 @@ get_header();
                             <div class="card-background"></div>
                             <div class="card-overlay"></div>
                             <div class="card-content">
-                                <h4>Fotobudka 360</h4>
+                                <h4><?php echo get_acf_value('oferta_360_tytul', 'Fotobudka 360'); ?></h4>
                                 <p>
                                     <?php echo get_acf_value('oferta_360_opis', 'Wejdź do centrum uwagi z naszą obrotową fotobudką 360°! Twórz spektakularne, dynamiczne filmy w zwolnionym tempie. Idealne na wesela, imprezy firmowe i urodziny. Gwarantujemy niezapomniane wspomnienia i mnóstwo zabawy dla wszystkich gości.'); ?>
                                 </p>
                             </div>
                             <div class="card-title-overlay">
-                                <h4>Fotobudka 360</h4>
+                                <h4><?php echo get_acf_value('oferta_360_tytul', 'Fotobudka 360'); ?></h4>
                             </div>
                         </div>
                     </div>
@@ -125,13 +129,13 @@ get_header();
                             <div class="card-background"></div>
                             <div class="card-overlay"></div>
                             <div class="card-content">
-                                <h4>Fotolustro</h4>
+                                <h4><?php echo get_acf_value('oferta_mirror_tytul', 'Fotolustro'); ?></h4>
                                 <p>
                                     <?php echo get_acf_value('oferta_mirror_opis', 'Magiczne lustro, które robi zdjęcia! Interaktywne fotolustro z animacjami i zabawnymi dodatkami. Goście mogą pozować, robić selfie i od razu drukować pamiątkowe zdjęcia. Doskonałe na każdą okazję - od eleganckich eventów po szalone imprezy.'); ?>
                                 </p>
                             </div>
                             <div class="card-title-overlay">
-                                <h4>Fotolustro</h4>
+                                <h4><?php echo get_acf_value('oferta_mirror_tytul', 'Fotolustro'); ?></h4>
                             </div>
                         </div>
                     </div>
@@ -142,13 +146,13 @@ get_header();
                             <div class="card-background"></div>
                             <div class="card-overlay"></div>
                             <div class="card-content">
-                                <h4>Ciężki dym</h4>
+                                <h4><?php echo get_acf_value('oferta_smoke_tytul', 'Ciężki dym'); ?></h4>
                                 <p>
                                     <?php echo get_acf_value('oferta_smoke_opis', 'Stwórz bajkową atmosferę z naszym efektem ciężkiego dymu! Gęsta, biała mgła unosi się przy ziemi, tworząc magiczny klimat podczas pierwszego tańca, wejścia pary młodej czy kluczowych momentów imprezy. Całkowicie bezpieczny i spektakularny.'); ?>
                                 </p>
                             </div>
                             <div class="card-title-overlay">
-                                <h4>Ciężki dym</h4>
+                                <h4><?php echo get_acf_value('oferta_smoke_tytul', 'Ciężki dym'); ?></h4>
                             </div>
                         </div>
                     </div>
@@ -159,13 +163,13 @@ get_header();
                             <div class="card-background"></div>
                             <div class="card-overlay"></div>
                             <div class="card-content">
-                                <h4>Fontanny iskier</h4>
+                                <h4><?php echo get_acf_value('oferta_fountain_tytul', 'Fontanny iskier'); ?></h4>
                                 <p>
                                     <?php echo get_acf_value('oferta_fountain_opis', 'Wybuchaj radością z naszymi fontannami iskier! Zimne ognie tworzą oszałamiające efekty świetlne bez zagrożenia. Idealne na tort weselny, pierwsze wejście czy kulminacyjne momenty imprezy. Bezpieczne, efektowne i niezapomniane dla wszystkich gości.'); ?>
                                 </p>
                             </div>
                             <div class="card-title-overlay">
-                                <h4>Fontanny iskier</h4>
+                                <h4><?php echo get_acf_value('oferta_fountain_tytul', 'Fontanny iskier'); ?></h4>
                             </div>
                         </div>
                     </div>
@@ -176,13 +180,13 @@ get_header();
                             <div class="card-background"></div>
                             <div class="card-overlay"></div>
                             <div class="card-content">
-                                <h4>Neonowe napisy</h4>
+                                <h4><?php echo get_acf_value('oferta_neons_tytul', 'Neonowe napisy'); ?></h4>
                                 <p>
                                     <?php echo get_acf_value('oferta_neons_opis', 'Świeć jaśniej niż gwiazdy z naszymi neonowymi napisami LED! Personalizowane napisy z imionami, datami lub hasłami. Kolorowe podświetlenie tworzy niesamowity klimat i doskonałe tło do zdjęć. Każdy event stanie się wyjątkowy i Instagram-owy!'); ?>
                                 </p>
                             </div>
                             <div class="card-title-overlay">
-                                <h4>Neonowe napisy</h4>
+                                <h4><?php echo get_acf_value('oferta_neons_tytul', 'Neonowe napisy'); ?></h4>
                             </div>
                         </div>
                     </div>
@@ -204,7 +208,7 @@ get_header();
     <div class="container">
         <div class="text-center mb-5">
             <h3 style="color: #2c2c2c">
-                <span style="color: #801039">My</span> w liczbach
+                <?php echo get_acf_value('tytul_statystyki', '<span style="color: #801039">My</span> w liczbach'); ?>
             </h3>
         </div>
 
@@ -228,13 +232,13 @@ get_header();
                             margin-bottom: 10px;
                         "
                     >
-                        0+
+                        <?php echo get_acf_value('stat1_liczba', '0+'); ?>
                     </div>
                     <div
                         class="stat-label"
                         style="font-size: 16px; font-weight: 500"
                     >
-                        zadowolonych klientów
+                        <?php echo get_acf_value('stat1_opis', 'zadowolonych klientów'); ?>
                     </div>
                 </div>
             </div>
@@ -258,13 +262,13 @@ get_header();
                             margin-bottom: 10px;
                         "
                     >
-                        0 lat
+                        <?php echo get_acf_value('stat2_liczba', '0 lat'); ?>
                     </div>
                     <div
                         class="stat-label"
                         style="font-size: 16px; font-weight: 500"
                     >
-                        na rynku
+                        <?php echo get_acf_value('stat2_opis', 'na rynku'); ?>
                     </div>
                 </div>
             </div>
@@ -288,13 +292,13 @@ get_header();
                             margin-bottom: 10px;
                         "
                     >
-                        ∞
+                        <?php echo get_acf_value('stat3_liczba', '∞'); ?>
                     </div>
                     <div
                         class="stat-label"
                         style="font-size: 16px; font-weight: 500"
                     >
-                        uśmiechów
+                        <?php echo get_acf_value('stat3_opis', 'uśmiechów'); ?>
                     </div>
                 </div>
             </div>
@@ -310,7 +314,7 @@ get_header();
     <div class="container">
         <div class="text-center mb-5">
             <h3 style="color: #2c2c2c">
-                Nasza <span style="color: #801039">galeria</span>
+                <?php echo get_acf_value('tytul_galeria', 'Nasza <span style="color: #801039">galeria</span>'); ?>
             </h3>
         </div>
 
@@ -337,17 +341,44 @@ get_header();
             </button>
 
             <div class="image-carousel">
-                <div class="image-slide image-slide-left">
-                    <img src="<?php echo get_template_directory_uri(); ?>/images/360.png" alt="Fotobudka 360" />
-                </div>
-
-                <div class="image-slide image-slide-center active">
-                    <img src="<?php echo get_template_directory_uri(); ?>/images/mirror.jpg" alt="Fotolustro" />
-                </div>
-
-                <div class="image-slide image-slide-right">
-                    <img src="<?php echo get_template_directory_uri(); ?>/images/heavysmoke.jpg" alt="Ciężki dym" />
-                </div>
+                <?php
+                $gallery_images = get_fotobudka_gallery_images();
+                $default_images = [
+                    get_template_directory_uri() . '/images/360.png',
+                    get_template_directory_uri() . '/images/mirror.jpg',
+                    get_template_directory_uri() . '/images/heavysmoke.jpg',
+                    get_template_directory_uri() . '/images/fountain.jpg',
+                    get_template_directory_uri() . '/images/neons.jpg'
+                ];
+                
+                // Use custom gallery images if available, otherwise use defaults
+                $images_to_display = !empty($gallery_images) ? $gallery_images : $default_images;
+                
+                // Display first three images (or what's available)
+                $positions = ['left', 'center', 'right'];
+                for ($i = 0; $i < 3 && $i < count($images_to_display); $i++) {
+                    $position = $positions[$i];
+                    $active_class = $position === 'center' ? ' active' : '';
+                    $image_url = $images_to_display[$i];
+                    
+                    echo '<div class="image-slide image-slide-' . $position . $active_class . '">';
+                    echo '<img data-src="' . esc_url($image_url) . '" alt="Gallery image" loading="lazy" class="gallery-lazy" />';
+                    echo '</div>';
+                }
+                
+                // If we have fewer than 3 images, fill with defaults
+                if (count($images_to_display) < 3) {
+                    for ($i = count($images_to_display); $i < 3; $i++) {
+                        $position = $positions[$i];
+                        $active_class = $position === 'center' ? ' active' : '';
+                        $default_img = $default_images[$i % count($default_images)];
+                        
+                        echo '<div class="image-slide image-slide-' . $position . $active_class . '">';
+                        echo '<img data-src="' . esc_url($default_img) . '" alt="Default gallery image" loading="lazy" class="gallery-lazy" style="opacity: 0.7;" />';
+                        echo '</div>';
+                    }
+                }
+                ?>
             </div>
 
             <button
