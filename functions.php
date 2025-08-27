@@ -82,6 +82,75 @@ function fotobudka_fix_media_upload() {
 }
 add_action('admin_enqueue_scripts', 'fotobudka_fix_media_upload');
 
+// Add lazy loading support and WebP detection
+function fotobudka_add_lazy_loading_support() {
+    // Add WebP support check
+    echo '<script>
+    // WebP support detection
+    function supportsWebP() {
+        if (typeof supportsWebP.result === "undefined") {
+            var canvas = document.createElement("canvas");
+            canvas.width = 1;
+            canvas.height = 1;
+            supportsWebP.result = canvas.toDataURL("image/webp").indexOf("webp") !== -1;
+        }
+        return supportsWebP.result;
+    }
+    
+    // Enhanced image loading with WebP fallback
+    function loadImageWithFallback(img) {
+        if (!img.dataset.src) return;
+        
+        var originalSrc = img.dataset.src;
+        var webpSrc = originalSrc.replace(/\.(jpg|jpeg|png)$/i, ".webp");
+        
+        // Try WebP first if supported
+        if (supportsWebP()) {
+            var webpImg = new Image();
+            webpImg.onload = function() {
+                img.src = webpSrc;
+                img.classList.add("loaded");
+            };
+            webpImg.onerror = function() {
+                img.src = originalSrc;
+                img.classList.add("loaded");
+            };
+            webpImg.src = webpSrc;
+        } else {
+            img.src = originalSrc;
+            img.classList.add("loaded");
+        }
+    }
+    
+    // Intersection Observer for lazy loading
+    if ("IntersectionObserver" in window) {
+        const imageObserver = new IntersectionObserver((entries, observer) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    const img = entry.target;
+                    loadImageWithFallback(img);
+                    observer.unobserve(img);
+                }
+            });
+        }, {
+            rootMargin: "50px 0px"
+        });
+        
+        document.addEventListener("DOMContentLoaded", function() {
+            document.querySelectorAll("img[data-src]").forEach(img => {
+                imageObserver.observe(img);
+            });
+        });
+    } else {
+        // Fallback for older browsers
+        document.addEventListener("DOMContentLoaded", function() {
+            document.querySelectorAll("img[data-src]").forEach(loadImageWithFallback);
+        });
+    }
+    </script>';
+}
+add_action('wp_footer', 'fotobudka_add_lazy_loading_support');
+
 // Dodaj Custom Fields dla strony głównej
 function fotobudka_add_custom_fields() {
     add_meta_box(
@@ -467,7 +536,7 @@ function fotobudka_dynamic_css() {
     if (is_front_page() || is_page_template('page-front.php')) {
         $post_id = get_queried_object_id();
         
-        $css = '<style type="text/css">';
+        $css = '<style type="text/css" id="fotobudka-dynamic-css">';
         
         $offers = [
             '360' => get_post_meta($post_id, '_fotobudka_offer_360_bg', true),
@@ -478,10 +547,26 @@ function fotobudka_dynamic_css() {
         ];
         
         foreach ($offers as $key => $bg_url) {
-            if ($bg_url) {
+            if ($bg_url && filter_var($bg_url, FILTER_VALIDATE_URL)) {
                 $css .= '.offer-card-' . $key . ' .card-background { background-image: url("' . esc_url($bg_url) . '"); }';
             }
         }
+        
+        // Add performance optimizations
+        $css .= '
+        /* Performance optimizations for dynamic content */
+        .photo-frame video { 
+            will-change: transform; 
+            transform: translateZ(0);
+            backface-visibility: hidden;
+        }
+        .image-slide img.loaded { 
+            will-change: auto; 
+        }
+        .offer-card .card-background {
+            will-change: transform;
+            transform: translateZ(0);
+        }';
         
         $css .= '</style>';
         
@@ -529,6 +614,30 @@ function get_fotobudka_gallery_images($post_id = null) {
     
     return [];
 }
+
+// Add admin notice for new media management features
+function fotobudka_media_management_notice() {
+    if (!current_user_can('edit_pages')) {
+        return;
+    }
+    
+    $screen = get_current_screen();
+    if ($screen && ($screen->id === 'page' || $screen->id === 'edit-page')) {
+        echo '<div class="notice notice-info is-dismissible">
+            <h3>🎉 Nowy System Zarządzania Mediami!</h3>
+            <p><strong>Dostępne są nowe funkcje:</strong></p>
+            <ul style="margin-left: 20px;">
+                <li>📹 <strong>Ramki Wideo:</strong> Indywidualne filmy dla każdej ramki z kontrolą czasu startu</li>
+                <li>🖼️ <strong>Galeria:</strong> Ulepszone zarządzanie zdjęciami galerii z podglądem</li>
+                <li>🎨 <strong>Karty Ofert:</strong> Niestandardowe tła dla każdej karty oferty</li>
+                <li>📱 <strong>Responsywność:</strong> Interfejs dostosowany do urządzeń mobilnych</li>
+                <li>⚡ <strong>Wydajność:</strong> Lazy loading i automatyczne WebP</li>
+            </ul>
+            <p><em>Przejdź do edycji strony głównej aby zobaczyć nowy interfejs z zakładkami!</em></p>
+        </div>';
+    }
+}
+add_action('admin_notices', 'fotobudka_media_management_notice');
 
 // ============= KONIEC NOWEJ SEKCJI MEDIÓW =============
 

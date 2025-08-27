@@ -340,7 +340,7 @@
                     $image_url = $images_to_display[$i];
                     
                     echo '<div class="image-slide image-slide-' . $position . $active_class . '">';
-                    echo '<img src="' . esc_url($image_url) . '" alt="Gallery image" loading="lazy" />';
+                    echo '<img data-src="' . esc_url($image_url) . '" alt="Gallery image" loading="lazy" class="gallery-lazy" />';
                     echo '</div>';
                 }
                 
@@ -352,7 +352,7 @@
                         $default_img = $default_images[$i % count($default_images)];
                         
                         echo '<div class="image-slide image-slide-' . $position . $active_class . '">';
-                        echo '<img src="' . esc_url($default_img) . '" alt="Default gallery image" loading="lazy" style="opacity: 0.7;" />';
+                        echo '<img data-src="' . esc_url($default_img) . '" alt="Default gallery image" loading="lazy" class="gallery-lazy" style="opacity: 0.7;" />';
                         echo '</div>';
                     }
                 }
