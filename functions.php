@@ -93,12 +93,61 @@ function fotobudka_add_custom_fields() {
 }
 add_action('add_meta_boxes', 'fotobudka_add_custom_fields');
 
+// Helper function to render media field
+function render_media_field($name, $label, $value, $type = 'all') {
+    echo '<tr><th><label>' . $label . ':</label></th><td>';
+    echo '<div class="media-preview">';
+    if ($value) {
+        echo '<div class="current-file">Aktualny plik:</div>';
+        // Check if it's an image or video
+        $is_video = (strpos($value, '.mp4') !== false || strpos($value, '.webm') !== false || strpos($value, '.mov') !== false);
+        if ($is_video) {
+            echo '<video controls style="max-width: 200px;"><source src="' . esc_url($value) . '"></video><br>';
+        } else {
+            echo '<img src="' . esc_url($value) . '" alt="' . $label . '" style="max-width: 200px;"><br>';
+        }
+        echo '<small>' . esc_url($value) . '</small><br><br>';
+    } else {
+        echo '<div class="no-file">Brak wybranego pliku</div><br>';
+    }
+    echo '<input type="text" name="' . $name . '" value="' . esc_attr($value) . '" class="regular-text" placeholder="URL pliku" />';
+    echo '<input type="button" class="button upload-button" value="Wybierz plik" />';
+    echo '</div></td></tr>';
+}
+
 function fotobudka_images_callback($post) {
     wp_nonce_field('fotobudka_save_images', 'fotobudka_nonce');
     
-    $hero_image = get_post_meta($post->ID, '_fotobudka_hero_image', true);
-    $hero_video = get_post_meta($post->ID, '_fotobudka_hero_video', true);
-    $gallery_images = get_post_meta($post->ID, '_fotobudka_gallery_images', true);
+    // SEKCJA HERO
+    $hero_background = get_post_meta($post->ID, '_fotobudka_hero_background', true);
+    $hero_title = get_post_meta($post->ID, '_fotobudka_hero_title', true);
+    $hero_subtitle = get_post_meta($post->ID, '_fotobudka_hero_subtitle', true);
+    
+    // GALERIA GŁÓWNA (4 framki)
+    $frame1_media = get_post_meta($post->ID, '_fotobudka_frame1_media', true);
+    $frame1_caption = get_post_meta($post->ID, '_fotobudka_frame1_caption', true);
+    $frame2_media = get_post_meta($post->ID, '_fotobudka_frame2_media', true);
+    $frame2_caption = get_post_meta($post->ID, '_fotobudka_frame2_caption', true);
+    $frame3_media = get_post_meta($post->ID, '_fotobudka_frame3_media', true);
+    $frame3_caption = get_post_meta($post->ID, '_fotobudka_frame3_caption', true);
+    $frame4_media = get_post_meta($post->ID, '_fotobudka_frame4_media', true);
+    $frame4_caption = get_post_meta($post->ID, '_fotobudka_frame4_caption', true);
+    
+    // GALERIA KARUZELA
+    $carousel_images = get_post_meta($post->ID, '_fotobudka_carousel_images', true);
+    
+    // USTAWIENIA STRONY
+    $site_logo = get_post_meta($post->ID, '_fotobudka_site_logo', true);
+    $primary_color = get_post_meta($post->ID, '_fotobudka_primary_color', true) ?: '#801039';
+    $secondary_color = get_post_meta($post->ID, '_fotobudka_secondary_color', true) ?: '#8b4b7a';
+    
+    // STATYSTYKI
+    $stat1_number = get_post_meta($post->ID, '_fotobudka_stat1_number', true) ?: '100+';
+    $stat1_label = get_post_meta($post->ID, '_fotobudka_stat1_label', true) ?: 'zadowolonych klientów';
+    $stat2_number = get_post_meta($post->ID, '_fotobudka_stat2_number', true) ?: '5 lat';
+    $stat2_label = get_post_meta($post->ID, '_fotobudka_stat2_label', true) ?: 'na rynku';
+    $stat3_number = get_post_meta($post->ID, '_fotobudka_stat3_number', true) ?: '∞';
+    $stat3_label = get_post_meta($post->ID, '_fotobudka_stat3_label', true) ?: 'uśmiechów';
     
     echo '<style>
         .media-preview { margin: 10px 0; padding: 10px; border: 1px solid #ddd; border-radius: 4px; }
@@ -106,67 +155,99 @@ function fotobudka_images_callback($post) {
         .media-preview video { max-width: 200px; height: auto; margin-right: 10px; }
         .current-file { font-weight: bold; color: #2271b1; }
         .no-file { font-style: italic; color: #666; }
+        .section-title { background: #f1f1f1; padding: 10px; margin: 20px 0 10px 0; font-weight: bold; }
+        .form-table th { width: 200px; }
+        .color-picker { width: 100px; }
     </style>';
     
+    echo '<div class="section-title">🎯 SEKCJA HERO</div>';
     echo '<table class="form-table">';
+    render_media_field('hero_background', 'Hero tło (zdjęcie/film)', $hero_background);
+    echo '<tr><th><label>Hero tytuł:</label></th><td>';
+    echo '<input type="text" name="hero_title" value="' . esc_attr($hero_title) . '" class="regular-text" placeholder="Tytuł w sekcji hero" />';
+    echo '</td></tr>';
+    echo '<tr><th><label>Hero podtytuł:</label></th><td>';
+    echo '<input type="text" name="hero_subtitle" value="' . esc_attr($hero_subtitle) . '" class="regular-text" placeholder="Podtytuł w sekcji hero" />';
+    echo '</td></tr>';
+    echo '</table>';
     
-    // GŁÓWNE ZDJĘCIE
-    echo '<tr><th><label>Główne zdjęcie:</label></th><td>';
-    echo '<div class="media-preview">';
-    if ($hero_image) {
-        echo '<div class="current-file">Aktualny plik:</div>';
-        echo '<img src="' . esc_url($hero_image) . '" alt="Główne zdjęcie"><br>';
-        echo '<small>' . esc_url($hero_image) . '</small><br><br>';
-    } else {
-        echo '<div class="no-file">Brak wybranego zdjęcia</div><br>';
+    echo '<div class="section-title">🖼️ GALERIA GŁÓWNA (4 framki)</div>';
+    echo '<table class="form-table">';
+    for ($i = 1; $i <= 4; $i++) {
+        $media_var = "frame{$i}_media";
+        $caption_var = "frame{$i}_caption";
+        render_media_field("frame{$i}_media", "Ramka {$i} (plik)", $$media_var);
+        echo '<tr><th><label>Ramka ' . $i . ' (podpis):</label></th><td>';
+        echo '<input type="text" name="frame' . $i . '_caption" value="' . esc_attr($$caption_var) . '" class="regular-text" placeholder="Podpis pod ramką ' . $i . '" />';
+        echo '</td></tr>';
     }
-    echo '<input type="text" name="hero_image" value="' . esc_attr($hero_image) . '" class="regular-text" placeholder="URL nowego zdjęcia" />';
-    echo '<input type="button" class="button upload-button" value="Wybierz nowe zdjęcie" />';
-    echo '</div></td></tr>';
+    echo '</table>';
     
-    // GŁÓWNY FILM
-    echo '<tr><th><label>Główny film:</label></th><td>';
+    echo '<div class="section-title">🎠 GALERIA KARUZELA</div>';
+    echo '<table class="form-table">';
+    echo '<tr><th><label>Lista zdjęć galerii:</label></th><td>';
     echo '<div class="media-preview">';
-    if ($hero_video) {
-        echo '<div class="current-file">Aktualny plik:</div>';
-        if (strpos($hero_video, '.mp4') !== false || strpos($hero_video, '.webm') !== false) {
-            echo '<video controls><source src="' . esc_url($hero_video) . '"></video><br>';
-        }
-        echo '<small>' . esc_url($hero_video) . '</small><br><br>';
-    } else {
-        echo '<div class="no-file">Brak wybranego filmu</div><br>';
-    }
-    echo '<input type="text" name="hero_video" value="' . esc_attr($hero_video) . '" class="regular-text" placeholder="URL nowego filmu" />';
-    echo '<input type="button" class="button upload-button" value="Wybierz nowy film" />';
-    echo '</div></td></tr>';
-    
-    // GALERIA ZDJĘĆ
-    echo '<tr><th><label>Zdjęcia galerii:</label></th><td>';
-    echo '<div class="media-preview">';
-    if ($gallery_images) {
+    if ($carousel_images) {
         echo '<div class="current-file">Aktualne zdjęcia:</div>';
-        $images = explode(',', $gallery_images);
+        $images = explode(',', $carousel_images);
         foreach ($images as $img_url) {
             $img_url = trim($img_url);
             if ($img_url) {
-                echo '<img src="' . esc_url($img_url) . '" alt="Zdjęcie galerii" style="margin: 5px;">';
+                echo '<img src="' . esc_url($img_url) . '" alt="Zdjęcie galerii" style="margin: 5px; max-width: 100px;">';
             }
         }
         echo '<br><br>';
     } else {
         echo '<div class="no-file">Brak zdjęć w galerii</div><br>';
     }
-    echo '<textarea name="gallery_images" class="large-text" rows="3" placeholder="Wklej URLs nowych zdjęć oddzielone przecinkami">' . esc_textarea($gallery_images) . '</textarea>';
-    echo '<br><input type="button" class="button upload-gallery-button" value="Wybierz zdjęcia dla galerii" />';
-    echo '<br><small><strong>Instrukcja:</strong> Kliknij "Wybierz zdjęcia dla galerii", zaznacz kilka plików (Ctrl+klik), kliknij "Użyj tych plików"</small>';
+    echo '<textarea name="carousel_images" class="large-text" rows="4" placeholder="Wklej URLs zdjęć oddzielone przecinkami (8-10 zdjęć)">' . esc_textarea($carousel_images) . '</textarea>';
+    echo '<br><input type="button" class="button upload-gallery-button" value="Wybierz zdjęcia (multi-select)" />';
+    echo '<br><small><strong>Instrukcja:</strong> Kliknij przycisk, zaznacz kilka plików (Ctrl+klik), kliknij "Użyj tych plików"</small>';
     echo '</div></td></tr>';
+    echo '</table>';
     
+    echo '<div class="section-title">⚙️ USTAWIENIA STRONY</div>';
+    echo '<table class="form-table">';
+    render_media_field('site_logo', 'Logo główne', $site_logo);
+    echo '<tr><th><label>Kolor główny:</label></th><td>';
+    echo '<input type="color" name="primary_color" value="' . esc_attr($primary_color) . '" class="color-picker" />';
+    echo '<input type="text" name="primary_color_text" value="' . esc_attr($primary_color) . '" class="regular-text" style="width: 100px; margin-left: 10px;" />';
+    echo '</td></tr>';
+    echo '<tr><th><label>Kolor pomocniczy:</label></th><td>';
+    echo '<input type="color" name="secondary_color" value="' . esc_attr($secondary_color) . '" class="color-picker" />';
+    echo '<input type="text" name="secondary_color_text" value="' . esc_attr($secondary_color) . '" class="regular-text" style="width: 100px; margin-left: 10px;" />';
+    echo '</td></tr>';
+    echo '</table>';
+    
+    echo '<div class="section-title">📊 STATYSTYKI (My w liczbach)</div>';
+    echo '<table class="form-table">';
+    echo '<tr><th><label>Statystyka 1:</label></th><td>';
+    echo '<input type="text" name="stat1_number" value="' . esc_attr($stat1_number) . '" style="width: 100px;" placeholder="100+" /> ';
+    echo '<input type="text" name="stat1_label" value="' . esc_attr($stat1_label) . '" class="regular-text" placeholder="zadowolonych klientów" />';
+    echo '</td></tr>';
+    echo '<tr><th><label>Statystyka 2:</label></th><td>';
+    echo '<input type="text" name="stat2_number" value="' . esc_attr($stat2_number) . '" style="width: 100px;" placeholder="5 lat" /> ';
+    echo '<input type="text" name="stat2_label" value="' . esc_attr($stat2_label) . '" class="regular-text" placeholder="na rynku" />';
+    echo '</td></tr>';
+    echo '<tr><th><label>Statystyka 3:</label></th><td>';
+    echo '<input type="text" name="stat3_number" value="' . esc_attr($stat3_number) . '" style="width: 100px;" placeholder="∞" /> ';
+    echo '<input type="text" name="stat3_label" value="' . esc_attr($stat3_label) . '" class="regular-text" placeholder="uśmiechów" />';
+    echo '</td></tr>';
     echo '</table>';
     
     // ULEPSZONY JAVASCRIPT
     ?>
     <script>
     jQuery(document).ready(function($) {
+        // Sync color picker with text input
+        $('input[type="color"]').on('change', function() {
+            $(this).next('input[type="text"]').val($(this).val());
+        });
+        
+        $('input[name*="color_text"]').on('change', function() {
+            $(this).prev('input[type="color"]').val($(this).val());
+        });
+        
         // Przycisk dla pojedynczych plików
         $('.upload-button').click(function(e) {
             e.preventDefault();
@@ -193,10 +274,10 @@ function fotobudka_images_callback($post) {
         // Przycisk dla galerii (wiele plików)
         $('.upload-gallery-button').click(function(e) {
             e.preventDefault();
-            var textarea = $(this).prev().prev('textarea');
+            var textarea = $(this).prevAll('textarea').first();
             
             var media_uploader = wp.media({
-                title: 'Wybierz zdjęcia dla galerii',
+                title: 'Wybierz zdjęcia dla galerii (8-10 plików)',
                 button: { text: 'Użyj tych plików' },
                 multiple: true
             });
@@ -226,19 +307,150 @@ function fotobudka_save_images($post_id) {
         return;
     }
     
-    if (isset($_POST['hero_image'])) {
-        update_post_meta($post_id, '_fotobudka_hero_image', sanitize_text_field($_POST['hero_image']));
+    // SEKCJA HERO
+    if (isset($_POST['hero_background'])) {
+        update_post_meta($post_id, '_fotobudka_hero_background', sanitize_text_field($_POST['hero_background']));
+    }
+    if (isset($_POST['hero_title'])) {
+        update_post_meta($post_id, '_fotobudka_hero_title', sanitize_text_field($_POST['hero_title']));
+    }
+    if (isset($_POST['hero_subtitle'])) {
+        update_post_meta($post_id, '_fotobudka_hero_subtitle', sanitize_text_field($_POST['hero_subtitle']));
     }
     
-    if (isset($_POST['hero_video'])) {
-        update_post_meta($post_id, '_fotobudka_hero_video', sanitize_text_field($_POST['hero_video']));
+    // GALERIA GŁÓWNA (4 framki)
+    for ($i = 1; $i <= 4; $i++) {
+        if (isset($_POST["frame{$i}_media"])) {
+            update_post_meta($post_id, "_fotobudka_frame{$i}_media", sanitize_text_field($_POST["frame{$i}_media"]));
+        }
+        if (isset($_POST["frame{$i}_caption"])) {
+            update_post_meta($post_id, "_fotobudka_frame{$i}_caption", sanitize_text_field($_POST["frame{$i}_caption"]));
+        }
     }
     
-    if (isset($_POST['gallery_images'])) {
-        update_post_meta($post_id, '_fotobudka_gallery_images', sanitize_textarea_field($_POST['gallery_images']));
+    // GALERIA KARUZELA
+    if (isset($_POST['carousel_images'])) {
+        update_post_meta($post_id, '_fotobudka_carousel_images', sanitize_textarea_field($_POST['carousel_images']));
+    }
+    
+    // USTAWIENIA STRONY
+    if (isset($_POST['site_logo'])) {
+        update_post_meta($post_id, '_fotobudka_site_logo', sanitize_text_field($_POST['site_logo']));
+    }
+    if (isset($_POST['primary_color_text'])) {
+        update_post_meta($post_id, '_fotobudka_primary_color', sanitize_hex_color($_POST['primary_color_text']));
+    }
+    if (isset($_POST['secondary_color_text'])) {
+        update_post_meta($post_id, '_fotobudka_secondary_color', sanitize_hex_color($_POST['secondary_color_text']));
+    }
+    
+    // STATYSTYKI
+    if (isset($_POST['stat1_number'])) {
+        update_post_meta($post_id, '_fotobudka_stat1_number', sanitize_text_field($_POST['stat1_number']));
+    }
+    if (isset($_POST['stat1_label'])) {
+        update_post_meta($post_id, '_fotobudka_stat1_label', sanitize_text_field($_POST['stat1_label']));
+    }
+    if (isset($_POST['stat2_number'])) {
+        update_post_meta($post_id, '_fotobudka_stat2_number', sanitize_text_field($_POST['stat2_number']));
+    }
+    if (isset($_POST['stat2_label'])) {
+        update_post_meta($post_id, '_fotobudka_stat2_label', sanitize_text_field($_POST['stat2_label']));
+    }
+    if (isset($_POST['stat3_number'])) {
+        update_post_meta($post_id, '_fotobudka_stat3_number', sanitize_text_field($_POST['stat3_number']));
+    }
+    if (isset($_POST['stat3_label'])) {
+        update_post_meta($post_id, '_fotobudka_stat3_label', sanitize_text_field($_POST['stat3_label']));
     }
 }
 add_action('save_post', 'fotobudka_save_images');
+
+// Helper functions to get custom field values with fallbacks
+function get_fotobudka_hero_background($post_id = null) {
+    if (!$post_id) $post_id = get_the_ID();
+    $value = get_post_meta($post_id, '_fotobudka_hero_background', true);
+    return $value ?: get_template_directory_uri() . '/videos/film1.mp4';
+}
+
+function get_fotobudka_hero_title($post_id = null) {
+    if (!$post_id) $post_id = get_the_ID();
+    $value = get_post_meta($post_id, '_fotobudka_hero_title', true);
+    return $value ?: 'Witamy w <span style="color: #801039; font-weight: bold">Fotobudka Chojnice!</span>';
+}
+
+function get_fotobudka_hero_subtitle($post_id = null) {
+    if (!$post_id) $post_id = get_the_ID();
+    $value = get_post_meta($post_id, '_fotobudka_hero_subtitle', true);
+    return $value ?: 'Dopełniamy, by na Twoim wydarzeniu nie zabrakło Atrakcji!';
+}
+
+function get_fotobudka_frame_media($frame_number, $post_id = null) {
+    if (!$post_id) $post_id = get_the_ID();
+    $value = get_post_meta($post_id, "_fotobudka_frame{$frame_number}_media", true);
+    // Fallback to existing videos
+    $fallbacks = [
+        1 => get_template_directory_uri() . '/videos/film1.mp4',
+        2 => get_template_directory_uri() . '/videos/film2.mp4', 
+        3 => get_template_directory_uri() . '/videos/film1.mp4',
+        4 => get_template_directory_uri() . '/videos/film2.mp4'
+    ];
+    return $value ?: $fallbacks[$frame_number];
+}
+
+function get_fotobudka_frame_caption($frame_number, $post_id = null) {
+    if (!$post_id) $post_id = get_the_ID();
+    return get_post_meta($post_id, "_fotobudka_frame{$frame_number}_caption", true);
+}
+
+function get_fotobudka_carousel_images($post_id = null) {
+    if (!$post_id) $post_id = get_the_ID();
+    $value = get_post_meta($post_id, '_fotobudka_carousel_images', true);
+    if ($value) {
+        return array_map('trim', explode(',', $value));
+    }
+    // Fallback to default images
+    $base_url = get_template_directory_uri();
+    return [
+        $base_url . '/images/360.png',
+        $base_url . '/images/mirror.jpg', 
+        $base_url . '/images/heavysmoke.jpg',
+        $base_url . '/images/fountain.jpg',
+        $base_url . '/images/neons.jpg'
+    ];
+}
+
+function get_fotobudka_site_logo($post_id = null) {
+    if (!$post_id) $post_id = get_the_ID();
+    $value = get_post_meta($post_id, '_fotobudka_site_logo', true);
+    return $value ?: get_template_directory_uri() . '/images/og-events-logo-white.png';
+}
+
+function get_fotobudka_primary_color($post_id = null) {
+    if (!$post_id) $post_id = get_the_ID();
+    $value = get_post_meta($post_id, '_fotobudka_primary_color', true);
+    return $value ?: '#801039';
+}
+
+function get_fotobudka_secondary_color($post_id = null) {
+    if (!$post_id) $post_id = get_the_ID();
+    $value = get_post_meta($post_id, '_fotobudka_secondary_color', true);
+    return $value ?: '#8b4b7a';
+}
+
+function get_fotobudka_stat($stat_number, $type = 'number', $post_id = null) {
+    if (!$post_id) $post_id = get_the_ID();
+    $value = get_post_meta($post_id, "_fotobudka_stat{$stat_number}_{$type}", true);
+    $defaults = [
+        '1_number' => '100+',
+        '1_label' => 'zadowolonych klientów',
+        '2_number' => '5 lat', 
+        '2_label' => 'na rynku',
+        '3_number' => '∞',
+        '3_label' => 'uśmiechów'
+    ];
+    return $value ?: $defaults["{$stat_number}_{$type}"];
+}
 
 // ============= KONIEC NOWEJ SEKCJI MEDIÓW =============
 
