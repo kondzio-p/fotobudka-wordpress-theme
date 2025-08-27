@@ -1,61 +1,127 @@
-// Galeria zdjęć - carousel functionality
-const images = [
-	{ src: "360.png", alt: "Fotobudka 360" },
-	{ src: "mirror.jpg", alt: "Fotolustro" },
-	{ src: "heavysmoke.jpg", alt: "Ciężki dym" },
-	{ src: "fountain.jpg", alt: "Fontanny iskier" },
-	{ src: "neons.jpg", alt: "Neonowe napisy" },
-];
+// Enhanced Galeria zdjęć - dynamic carousel functionality
+let galleryImages = [];
+let currentIndex = 1; // Start from center image
+let isAnimating = false; // Prevent animation overlap
 
-let currentIndex = 1; // Zaczynamy od drugiego zdjęcia (mirror.jpg), zgodnie z HTML
-let isAnimating = false; // Flaga zapobiegająca nakładaniu się animacji
+// Initialize gallery from DOM
+function initializeGallery() {
+    const slideImages = document.querySelectorAll('.image-slide img');
+    galleryImages = [];
+    
+    slideImages.forEach((img, index) => {
+        // Get src from data-src if available (lazy loading) or src
+        const imageSrc = img.dataset.src || img.src;
+        if (imageSrc) {
+            galleryImages.push({
+                src: imageSrc,
+                alt: img.alt || `Gallery image ${index + 1}`
+            });
+        }
+    });
+    
+    // If we have fewer than 3 images, duplicate them to ensure smooth carousel
+    const originalLength = galleryImages.length;
+    while (galleryImages.length < 3 && originalLength > 0) {
+        galleryImages = [...galleryImages, ...galleryImages.slice(0, Math.min(originalLength, 3 - galleryImages.length))];
+    }
+    
+    // Set initial index to center position
+    if (galleryImages.length > 0) {
+        currentIndex = galleryImages.length > 1 ? 1 : 0;
+    }
+    
+    // Preload images for better performance
+    preloadGalleryImages();
+}
+
+// Preload gallery images for better performance
+function preloadGalleryImages() {
+    if (typeof window.requestIdleCallback === 'function') {
+        // Use requestIdleCallback if available for better performance
+        window.requestIdleCallback(() => {
+            galleryImages.forEach(img => {
+                const link = document.createElement('link');
+                link.rel = 'preload';
+                link.as = 'image';
+                link.href = img.src;
+                document.head.appendChild(link);
+            });
+        });
+    } else {
+        // Fallback for browsers without requestIdleCallback
+        setTimeout(() => {
+            galleryImages.forEach(img => {
+                const preloader = new Image();
+                preloader.src = img.src;
+            });
+        }, 100);
+    }
+}
 
 function updateCarousel() {
-	if (isAnimating) return; // Zapobiegaj nakładaniu się animacji
+	if (isAnimating || galleryImages.length === 0) return; // Prevent animation overlap
 
 	isAnimating = true;
-	//console.log("Current index:", currentIndex);
 
 	const leftSlide = document.querySelector(".image-slide-left img");
 	const centerSlide = document.querySelector(".image-slide-center img");
 	const rightSlide = document.querySelector(".image-slide-right img");
 
-	const leftIndex = (currentIndex - 1 + images.length) % images.length;
-	const rightIndex = (currentIndex + 1) % images.length;
+	if (!leftSlide || !centerSlide || !rightSlide) {
+		isAnimating = false;
+		return;
+	}
 
-	//console.log("Indices:", leftIndex, currentIndex, rightIndex);
+	const leftIndex = (currentIndex - 1 + galleryImages.length) % galleryImages.length;
+	const rightIndex = (currentIndex + 1) % galleryImages.length;
 
-	// Animacja fadeOut dla wszystkich slajdów
+	// Enhanced animation timeline
 	const tl = gsap.timeline({
 		onComplete: () => {
 			isAnimating = false;
 		},
 	});
 
-	// Fade out wszystkich obrazów
+	// Fade out all images with enhanced effects
 	tl.to([leftSlide, centerSlide, rightSlide], {
 		opacity: 0,
 		scale: 0.9,
+		rotateY: 15,
 		duration: 0.3,
 		ease: "power2.inOut",
 	})
-		// Zmiana źródeł obrazów
+		// Change image sources with error handling
 		.call(() => {
-			leftSlide.src = images[leftIndex].src;
-			leftSlide.alt = images[leftIndex].alt;
+			// Helper function to load image with fallback
+			const loadImageSafely = (imgElement, src, alt) => {
+				if (!imgElement) return;
+				
+				imgElement.onload = () => {
+					imgElement.classList.add('loaded');
+				};
+				
+				imgElement.onerror = () => {
+					// Fallback to a default image if loading fails
+					console.warn('Failed to load image:', src);
+					imgElement.src = 'data:image/svg+xml;base64,' + btoa('<svg width="300" height="200" xmlns="http://www.w3.org/2000/svg"><rect width="100%" height="100%" fill="#f0f0f0"/><text x="50%" y="50%" font-family="Arial" font-size="14" fill="#999" text-anchor="middle" dy=".3em">Image not found</text></svg>');
+					imgElement.classList.add('loaded');
+				};
+				
+				imgElement.src = src;
+				imgElement.alt = alt;
+			};
 
-			centerSlide.src = images[currentIndex].src;
-			centerSlide.alt = images[currentIndex].alt;
-
-			rightSlide.src = images[rightIndex].src;
-			rightSlide.alt = images[rightIndex].alt;
+			loadImageSafely(leftSlide, galleryImages[leftIndex].src, galleryImages[leftIndex].alt);
+			loadImageSafely(centerSlide, galleryImages[currentIndex].src, galleryImages[currentIndex].alt);
+			loadImageSafely(rightSlide, galleryImages[rightIndex].src, galleryImages[rightIndex].alt);
 		})
-		// Fade in z animacją
+		// Fade in with enhanced 3D effects
 		.to(
 			[leftSlide, rightSlide],
 			{
 				opacity: 0.6,
 				scale: 1,
+				rotateY: 0,
 				duration: 0.4,
 				ease: "power2.out",
 			},
@@ -66,12 +132,13 @@ function updateCarousel() {
 			{
 				opacity: 1,
 				scale: 1,
+				rotateY: 0,
 				duration: 0.4,
 				ease: "power2.out",
 			},
 			"-=0.3"
 		)
-		// Dodaj subtelny efekt pulsowania dla środkowego obrazu
+		// Add subtle pulse effect for center image
 		.to(
 			centerSlide,
 			{
@@ -87,40 +154,121 @@ function updateCarousel() {
 
 // Make these functions global so they can be called from HTML onclick attributes
 window.nextImage = function () {
-	if (isAnimating) return; // Zapobiegaj szybkiemu klikaniu
+	if (isAnimating || galleryImages.length === 0) return; // Prevent rapid clicking
 
-	currentIndex = (currentIndex + 1) % images.length;
+	currentIndex = (currentIndex + 1) % galleryImages.length;
 
-	// Dodaj animację przycisku
+	// Enhanced button animation
 	const rightButton = document.querySelector(".carousel-arrow-right");
-	gsap.to(rightButton, {
-		scale: 0.9,
-		duration: 0.1,
-		ease: "power2.inOut",
-		yoyo: true,
-		repeat: 1,
-	});
+	if (rightButton) {
+		gsap.to(rightButton, {
+			scale: 0.9,
+			rotation: 5,
+			duration: 0.1,
+			ease: "power2.inOut",
+			yoyo: true,
+			repeat: 1,
+		});
+	}
 
 	updateCarousel();
 };
 
 window.prevImage = function () {
-	if (isAnimating) return; // Zapobiegaj szybkiemu klikaniu
+	if (isAnimating || galleryImages.length === 0) return; // Prevent rapid clicking
 
-	currentIndex = (currentIndex - 1 + images.length) % images.length;
+	currentIndex = (currentIndex - 1 + galleryImages.length) % galleryImages.length;
 
-	// Dodaj animację przycisku
+	// Enhanced button animation
 	const leftButton = document.querySelector(".carousel-arrow-left");
-	gsap.to(leftButton, {
-		scale: 0.9,
-		duration: 0.1,
-		ease: "power2.inOut",
-		yoyo: true,
-		repeat: 1,
-	});
+	if (leftButton) {
+		gsap.to(leftButton, {
+			scale: 0.9,
+			rotation: -5,
+			duration: 0.1,
+			ease: "power2.inOut",
+			yoyo: true,
+			repeat: 1,
+		});
+	}
 
 	updateCarousel();
 };
+
+// Auto-play functionality
+let autoPlayInterval;
+let isAutoPlayActive = false;
+
+function startAutoPlay(interval = 5000) {
+	if (galleryImages.length <= 1) return;
+	
+	stopAutoPlay(); // Clear any existing interval
+	isAutoPlayActive = true;
+	
+	autoPlayInterval = setInterval(() => {
+		if (!isAnimating && isAutoPlayActive) {
+			window.nextImage();
+		}
+	}, interval);
+}
+
+function stopAutoPlay() {
+	if (autoPlayInterval) {
+		clearInterval(autoPlayInterval);
+		autoPlayInterval = null;
+	}
+	isAutoPlayActive = false;
+}
+
+function pauseAutoPlay() {
+	isAutoPlayActive = false;
+}
+
+function resumeAutoPlay() {
+	isAutoPlayActive = true;
+}
+
+// Touch gestures for mobile
+let touchStartX = 0;
+let touchEndX = 0;
+let touchStartY = 0;
+let touchEndY = 0;
+
+function handleTouchStart(e) {
+	touchStartX = e.changedTouches[0].screenX;
+	touchStartY = e.changedTouches[0].screenY;
+	pauseAutoPlay();
+}
+
+function handleTouchEnd(e) {
+	touchEndX = e.changedTouches[0].screenX;
+	touchEndY = e.changedTouches[0].screenY;
+	handleGesture();
+	
+	// Resume auto-play after 3 seconds of inactivity
+	setTimeout(() => {
+		if (isAutoPlayActive) resumeAutoPlay();
+	}, 3000);
+}
+
+function handleGesture() {
+	const threshold = 50;
+	const restraint = 100;
+	
+	const diffX = touchStartX - touchEndX;
+	const diffY = Math.abs(touchStartY - touchEndY);
+	
+	// Check if it's a horizontal swipe (not vertical scroll)
+	if (Math.abs(diffX) > threshold && diffY < restraint) {
+		if (diffX > 0) {
+			// Swipe left - next image
+			window.nextImage();
+		} else {
+			// Swipe right - previous image
+			window.prevImage();
+		}
+	}
+}
 
 // Add scroll handling
 document.addEventListener("DOMContentLoaded", function () {
@@ -560,8 +708,43 @@ document.addEventListener("DOMContentLoaded", function () {
 		});
 	});
 
-	// Initialize carousel
+	// Initialize dynamic gallery and carousel
+	initializeGallery();
 	updateCarousel();
+	
+	// Setup touch gestures for mobile gallery
+	const carousel = document.querySelector('.image-carousel');
+	if (carousel) {
+		carousel.addEventListener('touchstart', handleTouchStart, {passive: true});
+		carousel.addEventListener('touchend', handleTouchEnd, {passive: true});
+		
+		// Pause auto-play on hover for desktop
+		carousel.addEventListener('mouseenter', pauseAutoPlay);
+		carousel.addEventListener('mouseleave', resumeAutoPlay);
+		
+		// Start auto-play after a delay
+		setTimeout(() => {
+			startAutoPlay(6000); // 6 seconds interval
+		}, 2000);
+	}
+	
+	// Enhanced keyboard navigation
+	document.addEventListener('keydown', function(e) {
+		if (e.key === 'ArrowLeft') {
+			e.preventDefault();
+			window.prevImage();
+		} else if (e.key === 'ArrowRight') {
+			e.preventDefault();
+			window.nextImage();
+		} else if (e.key === ' ') { // Spacebar to pause/resume
+			e.preventDefault();
+			if (isAutoPlayActive) {
+				stopAutoPlay();
+			} else {
+				startAutoPlay();
+			}
+		}
+	});
 
 	// Mouse parallax effect for main gallery - tylko na desktop
 	const photoGallery = document.querySelector(".photo-gallery");
