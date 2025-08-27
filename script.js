@@ -628,8 +628,8 @@ document.addEventListener("DOMContentLoaded", function () {
 
 				if (finalText.includes("+")) {
 					const number = parseInt(finalText.replace("+", ""));
-					gsap.from(
-						{ value: 50 },
+					gsap.to(
+						{ value: 0 },
 						{
 							value: number,
 							duration: 2,
@@ -642,8 +642,8 @@ document.addEventListener("DOMContentLoaded", function () {
 					);
 				} else if (finalText.includes("lat")) {
 					const number = parseInt(finalText.replace(" lat", ""));
-					gsap.from(
-						{ value: 5 },
+					gsap.to(
+						{ value: 0 },
 						{
 							value: number,
 							duration: 2,
