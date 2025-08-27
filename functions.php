@@ -56,6 +56,192 @@ function fotobudka_remove_menu_pages() {
 }
 add_action('admin_menu', 'fotobudka_remove_menu_pages');
 
+// ============= NOWA SEKCJA - OBSŁUGA MEDIÓW =============
+
+// Włącz obsługę mediów i biblioteki WordPress
+add_theme_support('post-thumbnails');
+add_theme_support('custom-logo');
+add_theme_support('html5', array('gallery', 'caption'));
+
+// Dodaj sizes dla obrazków
+add_image_size('fotobudka-hero', 1920, 1080, true);
+add_image_size('fotobudka-thumbnail', 400, 300, true);
+add_image_size('fotobudka-gallery', 800, 600, true);
+
+// Włącz edytor mediów
+function fotobudka_editor_styles() {
+    add_editor_style();
+}
+add_action('admin_init', 'fotobudka_editor_styles');
+
+// Napraw upload mediów
+function fotobudka_fix_media_upload() {
+    if (function_exists('wp_enqueue_media')) {
+        wp_enqueue_media();
+    }
+}
+add_action('admin_enqueue_scripts', 'fotobudka_fix_media_upload');
+
+// Dodaj Custom Fields dla strony głównej
+function fotobudka_add_custom_fields() {
+    add_meta_box(
+        'fotobudka-images',
+        'Zdjęcia i filmy strony głównej',
+        'fotobudka_images_callback',
+        'page'
+    );
+}
+add_action('add_meta_boxes', 'fotobudka_add_custom_fields');
+
+function fotobudka_images_callback($post) {
+    wp_nonce_field('fotobudka_save_images', 'fotobudka_nonce');
+    
+    $hero_image = get_post_meta($post->ID, '_fotobudka_hero_image', true);
+    $hero_video = get_post_meta($post->ID, '_fotobudka_hero_video', true);
+    $gallery_images = get_post_meta($post->ID, '_fotobudka_gallery_images', true);
+    
+    echo '<style>
+        .media-preview { margin: 10px 0; padding: 10px; border: 1px solid #ddd; border-radius: 4px; }
+        .media-preview img { max-width: 200px; height: auto; margin-right: 10px; }
+        .media-preview video { max-width: 200px; height: auto; margin-right: 10px; }
+        .current-file { font-weight: bold; color: #2271b1; }
+        .no-file { font-style: italic; color: #666; }
+    </style>';
+    
+    echo '<table class="form-table">';
+    
+    // GŁÓWNE ZDJĘCIE
+    echo '<tr><th><label>Główne zdjęcie:</label></th><td>';
+    echo '<div class="media-preview">';
+    if ($hero_image) {
+        echo '<div class="current-file">Aktualny plik:</div>';
+        echo '<img src="' . esc_url($hero_image) . '" alt="Główne zdjęcie"><br>';
+        echo '<small>' . esc_url($hero_image) . '</small><br><br>';
+    } else {
+        echo '<div class="no-file">Brak wybranego zdjęcia</div><br>';
+    }
+    echo '<input type="text" name="hero_image" value="' . esc_attr($hero_image) . '" class="regular-text" placeholder="URL nowego zdjęcia" />';
+    echo '<input type="button" class="button upload-button" value="Wybierz nowe zdjęcie" />';
+    echo '</div></td></tr>';
+    
+    // GŁÓWNY FILM
+    echo '<tr><th><label>Główny film:</label></th><td>';
+    echo '<div class="media-preview">';
+    if ($hero_video) {
+        echo '<div class="current-file">Aktualny plik:</div>';
+        if (strpos($hero_video, '.mp4') !== false || strpos($hero_video, '.webm') !== false) {
+            echo '<video controls><source src="' . esc_url($hero_video) . '"></video><br>';
+        }
+        echo '<small>' . esc_url($hero_video) . '</small><br><br>';
+    } else {
+        echo '<div class="no-file">Brak wybranego filmu</div><br>';
+    }
+    echo '<input type="text" name="hero_video" value="' . esc_attr($hero_video) . '" class="regular-text" placeholder="URL nowego filmu" />';
+    echo '<input type="button" class="button upload-button" value="Wybierz nowy film" />';
+    echo '</div></td></tr>';
+    
+    // GALERIA ZDJĘĆ
+    echo '<tr><th><label>Zdjęcia galerii:</label></th><td>';
+    echo '<div class="media-preview">';
+    if ($gallery_images) {
+        echo '<div class="current-file">Aktualne zdjęcia:</div>';
+        $images = explode(',', $gallery_images);
+        foreach ($images as $img_url) {
+            $img_url = trim($img_url);
+            if ($img_url) {
+                echo '<img src="' . esc_url($img_url) . '" alt="Zdjęcie galerii" style="margin: 5px;">';
+            }
+        }
+        echo '<br><br>';
+    } else {
+        echo '<div class="no-file">Brak zdjęć w galerii</div><br>';
+    }
+    echo '<textarea name="gallery_images" class="large-text" rows="3" placeholder="Wklej URLs nowych zdjęć oddzielone przecinkami">' . esc_textarea($gallery_images) . '</textarea>';
+    echo '<br><input type="button" class="button upload-gallery-button" value="Wybierz zdjęcia dla galerii" />';
+    echo '<br><small><strong>Instrukcja:</strong> Kliknij "Wybierz zdjęcia dla galerii", zaznacz kilka plików (Ctrl+klik), kliknij "Użyj tych plików"</small>';
+    echo '</div></td></tr>';
+    
+    echo '</table>';
+    
+    // ULEPSZONY JAVASCRIPT
+    ?>
+    <script>
+    jQuery(document).ready(function($) {
+        // Przycisk dla pojedynczych plików
+        $('.upload-button').click(function(e) {
+            e.preventDefault();
+            var button = $(this);
+            var input = button.prev('input');
+            
+            var media_uploader = wp.media({
+                title: 'Wybierz plik',
+                button: { text: 'Użyj tego pliku' },
+                multiple: false
+            });
+            
+            media_uploader.on('select', function() {
+                var attachment = media_uploader.state().get('selection').first().toJSON();
+                input.val(attachment.url);
+                
+                // Odśwież stronę żeby pokazać podgląd
+                alert('Plik wybrany! Zapisz stronę aby zobaczyć podgląd.');
+            });
+            
+            media_uploader.open();
+        });
+        
+        // Przycisk dla galerii (wiele plików)
+        $('.upload-gallery-button').click(function(e) {
+            e.preventDefault();
+            var textarea = $(this).prev().prev('textarea');
+            
+            var media_uploader = wp.media({
+                title: 'Wybierz zdjęcia dla galerii',
+                button: { text: 'Użyj tych plików' },
+                multiple: true
+            });
+            
+            media_uploader.on('select', function() {
+                var attachments = media_uploader.state().get('selection').toJSON();
+                var urls = [];
+                
+                attachments.forEach(function(attachment) {
+                    urls.push(attachment.url);
+                });
+                
+                textarea.val(urls.join(', '));
+                alert('Zdjęcia wybrane! Zapisz stronę aby zobaczyć podgląd.');
+            });
+            
+            media_uploader.open();
+        });
+    });
+    </script>
+    <?php
+}
+
+// Zapisz custom fields
+function fotobudka_save_images($post_id) {
+    if (!isset($_POST['fotobudka_nonce']) || !wp_verify_nonce($_POST['fotobudka_nonce'], 'fotobudka_save_images')) {
+        return;
+    }
+    
+    if (isset($_POST['hero_image'])) {
+        update_post_meta($post_id, '_fotobudka_hero_image', sanitize_text_field($_POST['hero_image']));
+    }
+    
+    if (isset($_POST['hero_video'])) {
+        update_post_meta($post_id, '_fotobudka_hero_video', sanitize_text_field($_POST['hero_video']));
+    }
+    
+    if (isset($_POST['gallery_images'])) {
+        update_post_meta($post_id, '_fotobudka_gallery_images', sanitize_textarea_field($_POST['gallery_images']));
+    }
+}
+add_action('save_post', 'fotobudka_save_images');
+
+// ============= KONIEC NOWEJ SEKCJI MEDIÓW =============
+
 // Dodaj wsparcie dla ACF (jeśli jest zainstalowane)
 function fotobudka_acf_init() {
     if (function_exists('acf_add_local_field_group')) {
