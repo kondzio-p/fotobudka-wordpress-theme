@@ -21,7 +21,7 @@
 								line-height: 1.2;
 							"
 						>
-							Dotrzyj do nas za pomocą
+							<?php echo get_acf_value('footer_tytul', 'Dotrzyj do nas za pomocą'); ?>
 						</h3>
 
 						<div class="contact-info">
@@ -62,7 +62,7 @@
 									"
 									onmouseover="this.style.color='#801039'"
 									onmouseout="this.style.color='#2c2c2c'"
-									>@OG Eventspot</a
+									><?php echo get_acf_value('facebook_handle', '@OG Eventspot'); ?></a
 								>
 							</div>
 
@@ -103,7 +103,7 @@
 									"
 									onmouseover="this.style.color='#801039'"
 									onmouseout="this.style.color='#2c2c2c'"
-									>@og.eventspot</a
+									><?php echo get_acf_value('instagram_handle', '@og.eventspot'); ?></a
 								>
 							</div>
 
