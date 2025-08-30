@@ -84,42 +84,28 @@ add_action('admin_enqueue_scripts', 'fotobudka_fix_media_upload');
 
 // Add lazy loading support and WebP detection
 function fotobudka_add_lazy_loading_support() {
-    // Add WebP support check
     echo '<script>
-    // WebP support detection
-    function supportsWebP() {
-        if (typeof supportsWebP.result === "undefined") {
-            var canvas = document.createElement("canvas");
-            canvas.width = 1;
-            canvas.height = 1;
-            supportsWebP.result = canvas.toDataURL("image/webp").indexOf("webp") !== -1;
-        }
-        return supportsWebP.result;
-    }
-    
-    // Enhanced image loading with WebP fallback
-    function loadImageWithFallback(img) {
+    // Simple lazy loading without WebP conversion
+    function loadImageSafely(img) {
         if (!img.dataset.src) return;
         
-        var originalSrc = img.dataset.src;
-        var webpSrc = originalSrc.replace(/\.(jpg|jpeg|png)$/i, ".webp");
-        
-        // Try WebP first if supported
-        if (supportsWebP()) {
-            var webpImg = new Image();
-            webpImg.onload = function() {
-                img.src = webpSrc;
-                img.classList.add("loaded");
-            };
-            webpImg.onerror = function() {
-                img.src = originalSrc;
-                img.classList.add("loaded");
-            };
-            webpImg.src = webpSrc;
-        } else {
-            img.src = originalSrc;
+        img.onload = function() {
             img.classList.add("loaded");
-        }
+        };
+        
+        img.onerror = function() {
+            console.warn("Failed to load image:", img.dataset.src);
+            // Fallback to placeholder SVG
+            img.src = "data:image/svg+xml;base64," + btoa(
+                \'<svg width="300" height="200" xmlns="http://www.w3.org/2000/svg">\' +
+                \'<rect width="100%" height="100%" fill="#f0f0f0"/>\' +
+                \'<text x="50%" y="50%" font-family="Arial" font-size="14" fill="#999" text-anchor="middle" dy=".3em">Obraz niedostępny</text>\' +
+                \'</svg>\'
+            );
+            img.classList.add("loaded", "error");
+        };
+        
+        img.src = img.dataset.src;
     }
     
     // Intersection Observer for lazy loading
@@ -128,23 +114,26 @@ function fotobudka_add_lazy_loading_support() {
             entries.forEach(entry => {
                 if (entry.isIntersecting) {
                     const img = entry.target;
-                    loadImageWithFallback(img);
+                    loadImageSafely(img);
                     observer.unobserve(img);
                 }
             });
         }, {
-            rootMargin: "50px 0px"
+            rootMargin: "50px 0px",
+            threshold: 0.1
         });
         
         document.addEventListener("DOMContentLoaded", function() {
             document.querySelectorAll("img[data-src]").forEach(img => {
+                // Add loading class for CSS styling
+                img.classList.add("lazy-loading");
                 imageObserver.observe(img);
             });
         });
     } else {
         // Fallback for older browsers
         document.addEventListener("DOMContentLoaded", function() {
-            document.querySelectorAll("img[data-src]").forEach(loadImageWithFallback);
+            document.querySelectorAll("img[data-src]").forEach(loadImageSafely);
         });
     }
     </script>';
